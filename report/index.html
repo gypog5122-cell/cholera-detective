@@ -152,7 +152,8 @@ footer{margin-top:60px;padding-top:24px;border-top:1px solid var(--line);
   <a href="#s16">그래서 어떻게 됐나</a>
   <a href="#p6" class="part">Ⅴ. 정리</a>
   <a href="#s17">좋은 시각화인 이유</a>
-  <a href="#s18">참고자료</a>
+  <a href="#s18">응용 — 서울에 써 봤다</a>
+  <a href="#s19">참고자료</a>
 </nav>
 
 <main>
@@ -163,7 +164,7 @@ footer{margin-top:60px;padding-top:24px;border-top:1px solid var(--line);
     발표자료를 만들기 전 단계의 내용 정리 문서다.</p>
 </header>
 
-<p class="linkhead">같이 보는 자료 — 눌러서 바로 열립니다</p>
+<p class="linkhead">같이 보는 자료 — 눌러서 바로 열립니다 (③④는 <a href="#s18">맨 아래 응용 절</a>에)</p>
 <div class="links">
   <a class="lk" href="https://gypog5122-cell.github.io/cholera-detective/map/" target="_blank" rel="noopener">
     <span class="t">① 지도 읽기 — 해설판</span>
@@ -585,7 +586,70 @@ footer{margin-top:60px;padding-top:24px;border-top:1px solid var(--line);
 </div>
 <p><b>한 문장으로 정리하면:</b> 점 하나가 사람 한 명이었기에, 그 뭉침이 증거가 되었다.</p>
 
-<h3 id="s18">참고자료</h3>
+<h3 id="s18">응용 — 같은 방법을 서울에 써 봤다</h3>
+<p>배운 것을 그대로 따라 해 보는 것이 가장 확실한 확인이다. 스노의 방법
+  — <b>사건 하나를 자국 하나로 찍고, 안 일어난 곳과 나란히 놓고 보기</b> —
+  을 <b>2012~2024년 서울의 보행·자전거 사고 다발지점 3,743곳</b>에 적용해 봤다.</p>
+
+<div class="links" style="margin-bottom:22px">
+  <a class="lk" href="https://gypog5122-cell.github.io/cholera-detective/seoul/" target="_blank" rel="noopener">
+    <span class="t">③ 서울 사고 지도 — 스노 방식 그대로</span>
+    <span class="d">점 하나가 그 자리의 사고 건수, <b>빨간 십자가 사람이 죽은 자리</b>다.
+      막대 모드로 바꾸면 그 자리의 길 방향을 추정해 스노 원도처럼 빗살로 쌓는다.</span>
+    <span class="u">gypog5122-cell.github.io/cholera-detective/seoul/</span>
+  </a>
+  <a class="lk" href="https://gypog5122-cell.github.io/cholera-detective/seoul/price/" target="_blank" rel="noopener">
+    <span class="t">④ 실험 — 집값이 높으면 덜 다칠까</span>
+    <span class="d">같은 지도에 <b>아파트 실거래 평당가</b>를 바탕색으로 겹쳤다.
+      "비싼 동네가 안전하다"가 참인지 숫자로 따져 본 판.</span>
+    <span class="u">gypog5122-cell.github.io/cholera-detective/seoul/price/</span>
+  </a>
+</div>
+
+<h4>무엇을 그대로 가져왔나</h4>
+<table>
+  <thead><tr><th style="width:190px">스노가 한 것</th><th>서울판에서</th></tr></thead>
+  <tbody>
+    <tr><td>죽은 사람 집 앞에 <b>막대 하나</b></td>
+      <td>사고가 잦았던 자리에 <b>점 하나</b>, 크기는 사고 건수</td></tr>
+    <tr><td>막대를 <b>길에 직각으로</b> 쌓음</td>
+      <td>길 정보가 없어, 가까운 사고점 10곳의 주된 방향을 <b>그 자리의 길 방향으로 추정</b>해 같은 방식으로 쌓음</td></tr>
+    <tr class="me"><td><b>안 죽은 곳</b>을 같이 놓음<br>(구빈원·양조장)</td>
+      <td><b>사고가 없는 구</b>를 같이 놓음 — 동대문구 126곳 ↔ 광진구 19곳</td></tr>
+    <tr><td>불리한 사례를 <b>숨기지 않음</b></td>
+      <td>결론에 안 맞는 유형을 <b>그대로 보여줌</b> (아래)</td></tr>
+  </tbody>
+</table>
+
+<h4>결과 — 그리고 걸린 지점</h4>
+<p>보행노인 사고는 <b>동대문구가 126곳으로 1위, 광진구가 19곳으로 꼴찌</b>다. 7배 차이.
+  찾아보니 <b>청량리·경동시장 일대</b>였다 — 어르신이 모이는 전통시장에 기차역·지하철·버스환승센터가 겹친 자리.
+  실제로 서울시는 그곳을 <b>전국 최초로 전통시장 노인보호구역</b>으로 지정했고,
+  보행로와 안전펜스를 깐 뒤 사고가 크게 줄었다. <b>"손잡이를 뗀" 자리</b>가 서울에도 있었던 셈이다.</p>
+<p>여기서 끝냈으면 <b>"가난한 동네가 위험하다"</b>로 결론 났을 것이다. 그래서 <b>집값을 겹쳐 봤다.</b></p>
+<table>
+  <thead><tr><th style="width:150px">누가 다치나</th><th style="width:110px">집값과의 상관</th><th>뜻</th></tr></thead>
+  <tbody>
+    <tr class="me"><td><b>보행노인</b></td><td><b>−0.50</b></td><td>비싼 구일수록 <b>뚜렷하게 적다</b></td></tr>
+    <tr><td>자전거</td><td>−0.14</td><td><b>관계가 거의 없다</b> — 송파구가 1위다</td></tr>
+    <tr><td>보행어린이</td><td>−0.27</td><td>약함</td></tr>
+    <tr><td>스쿨존어린이</td><td>−0.30</td><td>약함</td></tr>
+  </tbody>
+</table>
+<p><b>"비싼 동네가 안전하다"는 말은 누가 다치느냐에 따라 맞기도 하고 틀리기도 한다.</b>
+  한 장만 보고 결론 내렸으면 틀릴 뻔했다 — 터프티의 <b>"무엇과 비교하는가"</b>가
+  170년 뒤 서울에서도 똑같이 작동한 셈이다.</p>
+<div class="box" style="background:#f7f4ec">
+  <h4>다만 — 이 응용판이 말할 수 없는 것</h4>
+  <p>상관은 <b>인과가 아니다.</b> 집값이 사고를 줄이는 게 아니라, 비싼 동네의 다른 조건
+    (넓은 보도, 격자형 도로, 인구 구성)이 작용했을 수 있다.
+    구 평균으로 <b>개인을 말해서도 안 된다</b>(생태학적 오류).
+    집값은 2025년, 사고는 2012~2024년이라 <b>시점도 다르다</b>.</p>
+  <p style="margin-bottom:0">스노도 지도를 그린 뒤 <b>집집마다 찾아가 물었다.</b>
+    지도는 질문을 만들지, 답을 주지 않는다.</p>
+</div>
+
+<h3 id="s19">참고자료</h3>
 <ol>
   <li>Edward Tufte, <i>Visual Explanations: Images and Quantities, Evidence and Narrative</i>,
     Graphics Press, 1997 — 2장 「시각적·통계적 사고」, 특히 <b>30~35쪽</b>. 지도 도판은 <b>31쪽</b>.</li>
@@ -596,12 +660,16 @@ footer{margin-top:60px;padding-top:24px;border-top:1px solid var(--line);
   <li>E. W. Gilbert, "Pioneer Maps of Health and Disease in England,"
     <i>Geographical Journal</i> 124 (1958), 172~183 — 1권에 실린 "다시 그린 지도"의 출처.</li>
   <li>Benjamin W. Richardson, 「존 스노의 생애」(1858) — 펌프 손잡이 장면의 극적 서술.</li>
-</ol>
+  <li><b>[응용판 자료]</b> 공공데이터포털 「전국교통사고다발지역표준데이터」(기준일 2025-09-24) 중 서울 3,743곳 ·
+    국토교통부 실거래가 공개시스템, 서울 아파트 매매 7만 7,365건(2025년) ·
+    자치구 경계는 통계청 2013년 행정구역.</li>
 
 <footer>
   <p><b>같이 보는 자료</b> —
     <a href="https://gypog5122-cell.github.io/cholera-detective/map/" target="_blank" rel="noopener">지도 읽기(해설판)</a> ·
-    <a href="https://gypog5122-cell.github.io/cholera-detective/" target="_blank" rel="noopener">콜레라 탐정(게임)</a></p>
+    <a href="https://gypog5122-cell.github.io/cholera-detective/" target="_blank" rel="noopener">콜레라 탐정(게임)</a> ·
+    <a href="https://gypog5122-cell.github.io/cholera-detective/seoul/" target="_blank" rel="noopener">서울 응용판</a> ·
+    <a href="https://gypog5122-cell.github.io/cholera-detective/seoul/price/" target="_blank" rel="noopener">집값 실험</a></p>
   <p style="margin-top:8px"><b>다음 단계</b> — 이 문서를 바탕으로 발표용 슬라이드를 만든다.
     확대 그림 2~10번이 그대로 슬라이드 한 장씩이 된다.</p>
 </footer>
