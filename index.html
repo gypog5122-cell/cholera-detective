@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>콜레라 탐정 — 1854 소호 사건 파일</title>
+<style>
+:root{
+  --paper:#f4efe3; --card:#fffdf7; --ink:#1d1a16; --ink2:#4d4842; --muted:#8b8378;
+  --rule:#e2d9c6; --line:#cfc5b2; --red:#b3261e; --gold:#b8860b; --yellow:#ffe24a;
+  --blue:#2a5d8f; --green:#2f7d4f; --street:#7a7166;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);
+  font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  font-size:15.5px;line-height:1.65;word-break:keep-all;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(rgba(120,100,60,.06) 1px,transparent 1px);background-size:6px 6px}
+.page{max-width:1320px;margin:0 auto;padding:22px 20px 60px}
+
+/* HUD */
+.hud{display:flex;align-items:center;gap:18px;background:var(--ink);color:#fff;border-radius:12px;padding:10px 18px;margin-bottom:14px;flex-wrap:wrap}
+.hud .logo{font-weight:800;letter-spacing:-.02em;font-size:18px}
+.hud .logo span{color:#ffcf4a}
+.stages{display:flex;gap:6px;flex:1;min-width:280px}
+.stages div{flex:1;font-size:12px;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,.08);color:#bdb4a6;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stages div.on{background:#ffcf4a;color:var(--ink);font-weight:800}
+.stages div.done{background:rgba(255,207,74,.25);color:#fff}
+.stages div{cursor:pointer;transition:box-shadow .12s}
+.stages div:not(.lock):hover{box-shadow:inset 0 0 0 1.5px #ffcf4a}
+.stages div.lock{cursor:default;opacity:.5}
+.score{font-size:13px;color:#bdb4a6;text-align:right}
+.score b{display:block;font-size:24px;color:#fff;line-height:1.1;font-variant-numeric:tabular-nums}
+.score.bump b{animation:bump .5s}
+@keyframes bump{30%{transform:scale(1.35);color:#ffcf4a}}
+
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align-items:start}
+.mapcard{background:#fff;border:1px solid var(--rule);border-radius:12px;padding:8px;position:relative;box-shadow:0 2px 0 var(--rule)}
+#map{width:100%;height:auto;display:block;border-radius:6px;touch-action:none;user-select:none}
+#map.aim{cursor:crosshair}
+.mapcard .zoomtools{position:absolute;right:18px;top:18px;display:flex;flex-direction:column;gap:4px;z-index:3}
+.mapcard .zoomtools button{width:32px;height:32px;border:1px solid var(--line);background:rgba(255,255,255,.95);
+  border-radius:6px;font-size:17px;cursor:pointer;color:var(--ink);line-height:1;padding:0}
+.mapcard .zoomtools button:hover{border-color:var(--ink)}
+.maphint{position:absolute;right:18px;bottom:14px;font-size:11.5px;color:var(--muted);
+  background:rgba(255,255,255,.85);border-radius:5px;padding:2px 7px;pointer-events:none;z-index:3}
+#map{cursor:grab}
+#map.drag{cursor:grabbing}
+.banner{position:absolute;left:50%;top:18px;transform:translateX(-50%);background:rgba(29,26,22,.92);color:#fff;
+  padding:8px 16px;border-radius:999px;font-size:14px;font-weight:700;white-space:nowrap;pointer-events:none;transition:opacity .3s}
+.banner.hide{opacity:0}
+.datebox{position:absolute;left:18px;bottom:18px;background:rgba(255,253,247,.95);border:1px solid var(--line);border-radius:10px;padding:8px 12px;pointer-events:none}
+.datebox .d{font-size:13px;color:var(--ink2)}
+.datebox .n{font-size:28px;font-weight:800;color:var(--red);line-height:1.1;font-variant-numeric:tabular-nums}
+.datebox .n small{font-size:14px}
+.spark{display:block;margin-top:4px}
+
+/* notebook */
+.note{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:18px 18px 16px;position:sticky;top:14px;
+  box-shadow:0 2px 0 var(--rule);min-height:420px}
+.note .tag{display:inline-block;font-size:11px;letter-spacing:.14em;font-weight:800;color:#fff;background:var(--red);padding:2px 8px;border-radius:4px}
+.note h2{font-size:22px;letter-spacing:-.02em;line-height:1.3;margin:8px 0 10px}
+.note p{margin-bottom:10px;font-size:14.8px}
+.note .q{border-left:3px solid var(--line);padding:2px 0 2px 12px;color:var(--ink2);font-size:14px;margin:10px 0}
+.note .case{background:#f7f1e3;border-radius:10px;padding:12px 14px;margin:8px 0 12px;font-size:14.3px}
+.note .case b{color:var(--red)}
+.note table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0 10px}
+.note th,.note td{border-bottom:1px solid var(--rule);padding:6px 7px;text-align:left;vertical-align:top}
+.note th{color:var(--muted);font-weight:600;font-size:11.5px}
+.note tr.me td{background:#fff7e6}
+.note .chain{list-style:none;margin:10px 0;padding:0;counter-reset:ch}
+.note .chain li{counter-increment:ch;position:relative;padding:8px 0 8px 32px;border-top:1px solid var(--rule);font-size:13.6px;line-height:1.55}
+.note .chain li:last-child{border-bottom:1px solid var(--rule)}
+.note .chain li::before{content:counter(ch);position:absolute;left:0;top:8px;width:21px;height:21px;border-radius:50%;background:var(--ink);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.note .chain li.fin{background:#fff7e6}
+.note .chain li.fin::before{background:var(--red)}
+.note .after{list-style:none;margin:10px 0;padding:0}
+.note .after li{padding:8px 0;border-top:1px solid var(--rule);font-size:13.6px;line-height:1.55}
+.note .after li:last-child{border-bottom:1px solid var(--rule)}
+.note u{text-underline-offset:3px}
+.btn{font:inherit;font-weight:800;font-size:15px;border:none;border-radius:10px;padding:11px 16px;cursor:pointer;
+  background:var(--ink);color:#fff;width:100%;margin-top:6px;transition:transform .1s}
+.btn:hover{transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--ink2);border:1px solid var(--line);font-weight:600;font-size:13.5px;padding:7px 12px}
+.choices{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.choices button{font:inherit;text-align:left;font-size:14.5px;border:1.5px solid var(--line);background:#fff;border-radius:10px;
+  padding:10px 13px;cursor:pointer;color:var(--ink);transition:border-color .15s,background .15s}
+.choices button:hover:not(:disabled){border-color:var(--ink)}
+.choices button.right{border-color:var(--green);background:#e9f5ee}
+.choices button.wrong{border-color:var(--red);background:#fbeceb;animation:shake .35s}
+.choices button:disabled{cursor:default}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.fb{margin-top:10px;font-size:14px;border-radius:10px;padding:10px 12px}
+.fb.ok{background:#e9f5ee;color:#1e5235}
+.fb.no{background:#fbeceb;color:#7a1a14}
+.pts{font-weight:800;color:var(--gold)}
+.checks{display:flex;gap:8px;margin:6px 0 10px;flex-wrap:wrap}
+.checks span{font-size:13px;border:1.5px dashed var(--line);border-radius:999px;padding:3px 10px;color:var(--muted)}
+.checks span.got{border-style:solid;border-color:var(--green);color:var(--green);font-weight:700}
+.checks span[data-s]{cursor:pointer;transition:border-color .12s,color .12s}
+.checks span[data-s]:hover{border-color:var(--ink);color:var(--ink)}
+
+/* map styles */
+.street{fill:none;stroke:var(--street);stroke-width:1.1;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.frame{fill:none;stroke:var(--ink);stroke-width:2;vector-effect:non-scaling-stroke}
+.slabel{fill:#3a352f;font-weight:600;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round;pointer-events:none}
+.slabel.sq{font-weight:800;fill:var(--ink)}
+.death{stroke:var(--ink);stroke-linecap:butt;opacity:0}
+.death.on{opacity:1;animation:pop .45s ease-out}
+.death.new{stroke:var(--red)}
+@keyframes pop{0%{opacity:0}40%{opacity:1;stroke:var(--red)}100%{opacity:1}}
+.death.noanim{animation:none}
+.pump .p{fill:var(--ink);stroke:#fff;stroke-width:1.4;vector-effect:non-scaling-stroke;transition:fill .2s}
+.pump text{fill:var(--ink);font-weight:700;paint-order:stroke;stroke:#fff;stroke-width:3px;pointer-events:none}
+.pump .hit{fill:transparent}
+.pump .halo{fill:rgba(255,207,74,.0);stroke:none;transition:fill .2s}
+.pickable .pump{cursor:pointer}
+.pickable .pump:hover .halo{fill:rgba(255,207,74,.55)}
+.pump.bad .p{fill:#9a9184}
+.pump.bad text{fill:#9a9184;text-decoration:line-through}
+.pump.culprit .p{fill:var(--red)}
+.pump.culprit text{fill:var(--red)}
+.pulse{fill:none;stroke:var(--red);stroke-width:2.2;opacity:0;vector-effect:non-scaling-stroke;display:none}
+.pulse.go{display:inline;animation:pulse 1.6s ease-out infinite}
+@keyframes pulse{0%{r:6;opacity:.9}100%{r:44;opacity:0}}
+.yel{fill:var(--yellow);stroke:#c9a800;stroke-width:2;vector-effect:non-scaling-stroke;opacity:0;transition:opacity .5s}
+.yel.found{opacity:.95}
+.yel-l{font-weight:800;fill:var(--ink);pointer-events:none;opacity:0;transition:opacity .5s}
+.yel-l.found{opacity:1}
+.miss{fill:none;stroke:var(--red);stroke-width:2;vector-effect:non-scaling-stroke;animation:miss .7s forwards}
+@keyframes miss{0%{opacity:1}100%{opacity:0}}
+.xmark{fill:var(--red);font-weight:800;animation:miss .9s forwards;pointer-events:none}
+.hintc{fill:rgba(255,207,74,.15);stroke:var(--gold);stroke-width:2;stroke-dasharray:6 5;vector-effect:non-scaling-stroke}
+.casepin{cursor:pointer}
+.casepin circle{fill:var(--blue);stroke:#fff;stroke-width:2;vector-effect:non-scaling-stroke}
+.casepin text{fill:#fff;font-weight:800;pointer-events:none}
+.casepin.done circle{fill:var(--green)}
+.casepin:hover circle{fill:#1b4370}
+.caseline{stroke:var(--blue);stroke-width:2;stroke-dasharray:5 4;vector-effect:non-scaling-stroke;fill:none}
+.ring{fill:none;stroke:var(--red);stroke-dasharray:4 4;stroke-width:1.3;opacity:.8;vector-effect:non-scaling-stroke}
+.hide{display:none}
+
+/* timeline stage */
+.tl{position:absolute;inset:8px;background:rgba(255,253,247,.97);border-radius:6px;display:flex;flex-direction:column;justify-content:center;padding:30px}
+.tl h3{font-size:20px;font-weight:800;margin-bottom:2px}
+.tl .sub{color:var(--ink2);font-size:14px;margin-bottom:10px}
+.tl svg{width:100%;height:auto}
+.tl.hide{display:none}
+.tbar{fill:#a59d90}
+.tbar.peak{fill:var(--red)}
+.tbar.future{fill:#e8e1d2}
+
+/* ending */
+.end{text-align:center}
+.medal{width:120px;height:120px;margin:4px auto 8px;display:block}
+.rank{font-size:26px;font-weight:800;letter-spacing:-.02em}
+.bigscore{font-size:46px;font-weight:800;color:var(--gold);line-height:1.1}
+.lesson{text-align:left;background:#f7f1e3;border-radius:10px;padding:12px 14px;margin-top:12px;font-size:14px}
+.lesson li{margin:0 0 4px 18px}
+
+#toast{position:fixed;left:50%;top:80px;transform:translateX(-50%) translateY(-20px);background:var(--gold);color:#fff;
+  font-weight:800;font-size:20px;padding:8px 18px;border-radius:999px;opacity:0;transition:all .3s;pointer-events:none;z-index:30}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.confetti{position:fixed;width:8px;height:12px;top:-20px;z-index:40;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+footer{margin-top:20px;font-size:12px;color:var(--muted)}
+
+@media (max-width:980px){
+  .stage{grid-template-columns:1fr}
+  .note{position:static;min-height:0}
+  .stages div{font-size:11px}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="hud">
+    <div class="logo">🔎 콜레라 <span>탐정</span></div>
+    <div class="stages" id="stages"></div>
+    <div class="score" id="scorebox">점수<b id="score">0</b></div>
+  </div>
+
+  <div class="stage">
+    <div class="mapcard">
+      <svg id="map" role="img" aria-label="1854년 소호 콜레라 지도 게임판"></svg>
+      <div class="banner hide" id="banner"></div>
+      <div class="zoomtools"><button id="gzin" aria-label="확대">+</button><button id="gzout" aria-label="축소">−</button><button id="gzreset" aria-label="전체 보기">⤢</button></div>
+      <div class="maphint">드래그로 이동 · 휠이나 + − 로 확대</div>
+      <div class="datebox hide" id="datebox"><div class="d" id="dd">1854년 8월 19일</div><div class="n"><span id="dn">0</span><small>명 사망</small></div><svg class="spark" id="spark" width="190" height="34"></svg></div>
+      <div class="tl hide" id="tl"></div>
+    </div>
+    <aside class="note" id="note" aria-live="polite"></aside>
+  </div>
+  <footer>자료: 존 스노 『콜레라의 전파 방식에 관하여』(1855) 지도 — Dodson &amp; Tobler 디지털화 좌표(R 패키지 cholera), 일별 사망자(R 패키지 HistData). 해설: 터프티 『시각적 설명』(1997) 2장. 거리는 지도 좌표 환산 근사치.</footer>
+</div>
+<div id="toast"></div>
+
+<script>
+const DATA = {"streets":[{"id":1,"n":"Map Frame","p":[[16.738,18.696],[17.66,18.712]]},{"id":2,"n":"Map Frame","p":[[14.462,18.655],[16.738,18.696]]},{"id":3,"n":"Map Frame","p":[[12.794,18.616],[14.462,18.655]]},{"id":4,"n":"Map Frame","p":[[11.6,18.588],[12.794,18.616]]},{"id":5,"n":"Map Frame","p":[[10.972,18.574],[11.6,18.588]]},{"id":6,"n":"Map Frame","p":[[10.796,18.57],[10.972,18.574]]},{"id":7,"n":"Map Frame","p":[[8.533,18.524],[10.796,18.57]]},{"id":8,"n":"Map Frame","p":[[7.364,18.499],[8.533,18.524]]},{"id":9,"n":"Map Frame","p":[[6.703,18.485],[7.364,18.499]]},{"id":10,"n":"Map Frame","p":[[6.479,18.479],[6.703,18.485]]},{"id":11,"n":"Map Frame","p":[[4.992,18.441],[6.479,18.479]]},{"id":12,"n":"Map Frame","p":[[3.39,18.397],[4.992,18.441]]},{"id":13,"n":"Castle Street East","p":[[9.683,18.209],[10.796,18.57]]},{"id":14,"n":"Map Frame","p":[[17.66,18.712],[19.484,18.725],[19.503,18.119]]},{"id":15,"n":"Market Place","p":[[8.657,18.089],[8.533,18.524]]},{"id":16,"n":"Margaret Street","p":[[5.098,18.053],[6.479,18.479]]},{"id":17,"n":"Regent Street","p":[[4.992,18.441],[5.098,18.053]]},{"id":18,"n":"Castle Street East","p":[[8.772,17.915],[9.683,18.209]]},{"id":19,"n":"Market Place","p":[[8.772,17.915],[8.657,18.089]]},{"id":20,"n":"Oxford Street","p":[[17.447,17.901],[18.736,18.064],[19.503,18.119]]},{"id":21,"n":"Hanway Street","p":[[17.447,17.901],[17.518,18.439],[17.66,18.712]]},{"id":22,"n":"Oxford Street","p":[[17.174,17.866],[17.447,17.901]]},{"id":23,"n":"Rathbone Place","p":[[17.174,17.866],[16.738,18.696]]},{"id":24,"n":"Market Place","p":[[7.926,17.67],[7.882,17.85],[8.657,18.089]]},{"id":25,"n":"Oxford Street","p":[[16.113,17.645],[17.174,17.866]]},{"id":26,"n":"Perrys Place","p":[[16.113,17.645],[15.895,18.333],[15.507,18.242],[15.387,18.339],[15.317,18.517]]},{"id":27,"n":"Margaret Street","p":[[3.733,17.621],[5.098,18.053]]},{"id":28,"n":"Great Castle Street","p":[[7.625,17.582],[7.926,17.67]]},{"id":29,"n":"Margaret Court","p":[[7.364,18.499],[7.625,17.582]]},{"id":30,"n":"Margaret Street","p":[[3.406,17.536],[3.733,17.621]]},{"id":31,"n":"Map Frame","p":[[3.406,17.536],[3.39,18.397]]},{"id":32,"n":"Oxford Street","p":[[15.6,17.525],[16.113,17.645]]},{"id":33,"n":"Oxford Street","p":[[14.97,17.415],[15.6,17.525]]},{"id":34,"n":"Newman Street","p":[[14.97,17.415],[14.462,18.655]]},{"id":35,"n":"Great Castle Street","p":[[6.994,17.399],[7.625,17.582]]},{"id":36,"n":"John Street","p":[[6.994,17.399],[6.703,18.485]]},{"id":37,"n":"Map Frame","p":[[19.503,18.119],[19.527,17.264]]},{"id":38,"n":"Oxford Street","p":[[14.159,17.262],[14.783,17.382],[14.97,17.415]]},{"id":39,"n":"Market Place","p":[[8.824,17.196],[8.876,17.326],[8.772,17.915]]},{"id":40,"n":"Falconberg Court","p":[[19.353,17.184],[19.527,17.264]]},{"id":41,"n":"Falconberg Mews","p":[[18.508,17.328],[19.184,17.562],[19.353,17.184]]},{"id":42,"n":"Oxford Street","p":[[13.395,17.12],[13.816,17.196],[14.159,17.262]]},{"id":43,"n":"Berners Street","p":[[13.395,17.12],[12.794,18.616]]},{"id":44,"n":"Adam and Eve Court","p":[[11.525,17.075],[10.972,18.574]]},{"id":45,"n":"Market Place","p":[[8.193,17.015],[8.824,17.196]]},{"id":46,"n":"Market Place","p":[[8.146,16.991],[8.193,17.015]]},{"id":47,"n":"Market Place","p":[[7.926,17.67],[8.146,16.991]]},{"id":48,"n":"Great Castle Street","p":[[5.403,16.937],[6.994,17.399]]},{"id":49,"n":"Regent Street","p":[[5.098,18.053],[5.403,16.937]]},{"id":50,"n":"Oxford Street","p":[[12.306,16.921],[12.742,17.002],[13.395,17.12]]},{"id":51,"n":"Oxford Street","p":[[12.245,16.91],[12.306,16.921]]},{"id":52,"n":"Allens Court","p":[[14.159,17.262],[14.332,16.49],[14.389,16.499]]},{"id":53,"n":"Great Chapel Street","p":[[15.317,16.41],[14.97,17.415]]},{"id":54,"n":"Titchfield Street","p":[[15.389,16.12],[16.069,16.408]]},{"id":55,"n":"Great Chapel Street","p":[[15.317,16.41],[15.389,16.12]]},{"id":56,"n":"Hollen Street","p":[[14.024,15.827],[15.134,16.356],[15.317,16.41]]},{"id":57,"n":"Wardour Street","p":[[14.024,15.827],[13.395,17.12]]},{"id":58,"n":"Great Chapel Street","p":[[15.389,16.12],[15.51,15.752],[15.607,15.622]]},{"id":59,"n":"Noel Street","p":[[13.58,15.604],[14.024,15.827]]},{"id":60,"n":"Wardour Street","p":[[14.443,15.01],[14.024,15.827]]},{"id":61,"n":"Wells Street","p":[[12.245,16.91],[11.6,18.588]]},{"id":62,"n":"Map Frame","p":[[19.527,17.264],[19.541,16.768]]},{"id":63,"n":"Falconberg Mews","p":[[19.353,17.184],[19.541,16.768]]},{"id":64,"n":"Oxford Street","p":[[11.165,16.71],[12.245,16.91]]},{"id":65,"n":"Princes Street (I)","p":[[3.733,17.621],[4.244,16.702]]},{"id":66,"n":"Market Row","p":[[8.146,16.991],[7.186,16.684]]},{"id":67,"n":"John Street","p":[[7.186,16.684],[6.994,17.399]]},{"id":68,"n":"Oxford Street","p":[[10.829,16.646],[11.165,16.71]]},{"id":69,"n":"Great Castle Street","p":[[4.293,16.615],[5.403,16.937]]},{"id":70,"n":"Princes Street (I)","p":[[4.244,16.702],[4.293,16.615]]},{"id":71,"n":"Charles Street","p":[[17.174,17.866],[17.743,16.587]]},{"id":72,"n":"Oxford Street","p":[[10.319,16.55],[10.829,16.646]]},{"id":73,"n":"Winsley Street","p":[[9.683,18.209],[10.319,16.55]]},{"id":74,"n":"Map Frame","p":[[19.541,16.768],[19.548,16.537]]},{"id":75,"n":"Dean Street","p":[[15.6,17.525],[16.069,16.408]]},{"id":76,"n":"Oxford Street","p":[[9.475,16.39],[10.319,16.55]]},{"id":77,"n":"Turks Head Yard","p":[[9.337,16.97],[9.475,16.39]]},{"id":78,"n":"Phoenix Yard","p":[[4.244,16.702],[3.427,16.385]]},{"id":79,"n":"Map Frame","p":[[3.427,16.385],[3.406,17.536]]},{"id":80,"n":"Oxford Street","p":[[9.089,16.317],[9.475,16.39]]},{"id":81,"n":"Oxford Street","p":[[9.03,16.306],[9.089,16.317]]},{"id":82,"n":"Market Street (I)","p":[[8.824,17.196],[9.03,16.306]]},{"id":83,"n":"Oxford Street","p":[[8.371,16.175],[9.03,16.306]]},{"id":84,"n":"Market Court","p":[[8.193,17.015],[8.371,16.175]]},{"id":85,"n":"Sutton Street","p":[[18.735,16.15],[19.548,16.537]]},{"id":86,"n":"Soho Square","p":[[18.735,16.15],[18.394,16.876],[17.743,16.587]]},{"id":87,"n":"Oxford Street","p":[[7.868,16.078],[8.371,16.175]]},{"id":88,"n":"Phoenix Yard","p":[[3.519,16.033],[3.944,16.159]]},{"id":89,"n":"Phoenix Yard","p":[[3.427,16.385],[3.519,16.033]]},{"id":90,"n":"Oxford Street","p":[[7.375,15.978],[7.868,16.078]]},{"id":91,"n":"John Street","p":[[7.375,15.978],[7.186,16.684]]},{"id":92,"n":"Dean Street","p":[[16.069,16.408],[16.27,15.93]]},{"id":93,"n":"Norris's Place","p":[[10.829,16.646],[11.026,15.859]]},{"id":94,"n":"Oxford Street","p":[[6.633,15.822],[7.375,15.978]]},{"id":95,"n":"Oxford Street","p":[[5.7,15.626],[6.633,15.822]]},{"id":96,"n":"Regent Street","p":[[5.403,16.937],[5.7,15.626]]},{"id":97,"n":"Crown Court","p":[[15.607,15.622],[16.27,15.93]]},{"id":98,"n":"Soho Square","p":[[17.743,16.587],[17.099,16.255],[17.421,15.542]]},{"id":99,"n":"Oxford Street","p":[[5.025,15.516],[5.7,15.626]]},{"id":100,"n":"Oxford Street","p":[[4.91,15.49],[5.025,15.516]]},{"id":101,"n":"Princes Street (I)","p":[[4.293,16.615],[4.91,15.49]]},{"id":102,"n":"Soho Square","p":[[18.907,15.376],[19.064,15.45],[18.735,16.15]]},{"id":103,"n":"Noel Street","p":[[13.088,15.357],[13.58,15.604]]},{"id":104,"n":"Berwick Street","p":[[12.306,16.921],[13.088,15.357]]},{"id":105,"n":"Great Chapel Street","p":[[15.607,15.622],[15.694,15.34]]},{"id":106,"n":"Blenheim Mews","p":[[10.264,15.67],[9.491,15.321]]},{"id":107,"n":"Blenheim Street","p":[[9.089,16.317],[9.491,15.321]]},{"id":108,"n":"Noel Street","p":[[13.58,15.604],[13.67,15.389],[13.56,15.315]]},{"id":109,"n":"Oxford Street","p":[[3.721,15.248],[4.91,15.49]]},{"id":110,"n":"Phoenix Yard","p":[[3.519,16.033],[3.721,15.248]]},{"id":111,"n":"Carlisle Street","p":[[16.588,15.171],[17.421,15.542]]},{"id":112,"n":"Dean Street","p":[[16.27,15.93],[16.588,15.171]]},{"id":113,"n":"Oxford Street","p":[[3.45,15.169],[3.721,15.248]]},{"id":114,"n":"Map Frame","p":[[3.45,15.169],[3.427,16.385]]},{"id":115,"n":"Soho Square","p":[[18.402,15.139],[18.907,15.376]]},{"id":116,"n":"Marlborough Mews","p":[[9.059,15.126],[9.491,15.321],[8.157,14.718]]},{"id":117,"n":"Nags Head Yard","p":[[9.059,15.126],[8.784,15.772]]},{"id":118,"n":"Noel Street","p":[[13.088,15.357],[12.214,14.909]]},{"id":119,"n":"Soho Square","p":[[17.895,14.9],[18.402,15.139]]},{"id":120,"n":"Carlisle Street","p":[[15.694,15.34],[15.847,14.842],[16.588,15.171]]},{"id":121,"n":"Soho Square","p":[[17.421,15.542],[17.744,14.829],[17.895,14.9]]},{"id":122,"n":"Poland Street","p":[[11.8,14.811],[11.45,15.614],[11.165,16.71]]},{"id":123,"n":"Little Chapel Street","p":[[14.547,14.806],[15.694,15.34]]},{"id":124,"n":"Wardour Street","p":[[14.443,15.01],[14.547,14.806]]},{"id":125,"n":"Portland Street","p":[[13.934,14.748],[14.443,15.01]]},{"id":126,"n":"Queen Street (I)","p":[[7.868,16.078],[7.983,15.222],[7.953,15.141],[8.157,14.718]]},{"id":127,"n":"Dean Street","p":[[16.588,15.171],[16.653,15.017],[16.863,14.546]]},{"id":128,"n":"Portland Street","p":[[13.502,14.525],[13.934,14.748]]},{"id":129,"n":"Berwick Street","p":[[13.502,14.525],[13.088,15.357]]},{"id":130,"n":"Argyll Street","p":[[7.235,14.425],[6.796,15.297],[6.633,15.822]]},{"id":131,"n":"Regent Street","p":[[6.012,14.371],[5.958,14.593],[5.7,15.626]]},{"id":132,"n":"Princes Street (II)","p":[[5.357,14.215],[6.012,14.371]]},{"id":133,"n":"Swallow Place","p":[[5.025,15.516],[5.13,14.95],[5.203,14.957],[5.357,14.215]]},{"id":134,"n":"Portland Street","p":[[12.689,14.115],[13.502,14.525]]},{"id":135,"n":"Great Marlborough Street","p":[[10.038,14.052],[11.8,14.811]]},{"id":136,"n":"Blenheim Street","p":[[9.491,15.321],[10.038,14.052]]},{"id":137,"n":"St Anns Court","p":[[15.864,13.981],[15.971,14.057],[15.947,14.103],[16.863,14.546]]},{"id":138,"n":"St Anns Place","p":[[15.539,14.11],[15.737,14.214],[15.864,13.981]]},{"id":139,"n":"Portland Street","p":[[12.208,13.86],[12.689,14.115]]},{"id":140,"n":"Poland Street","p":[[11.8,14.811],[12.208,13.86]]},{"id":141,"n":"St Anns Court","p":[[15.573,13.84],[15.864,13.981]]},{"id":142,"n":"Map Frame","p":[[19.548,16.537],[19.625,13.832]]},{"id":143,"n":"Greek Street","p":[[18.907,15.376],[19.625,13.832]]},{"id":144,"n":"Little Argyll Street","p":[[6.149,13.812],[7.235,14.425]]},{"id":145,"n":"Regent Street","p":[[6.149,13.812],[6.012,14.371]]},{"id":146,"n":"Dean Street","p":[[16.863,14.546],[17.194,13.803]]},{"id":147,"n":"Map Frame","p":[[19.625,13.832],[19.627,13.739]]},{"id":148,"n":"St James Workhouse","p":[[11.784,13.635],[12.208,13.86]]},{"id":149,"n":"St Anns Court","p":[[15.149,13.627],[15.573,13.84]]},{"id":150,"n":"Wardour Street","p":[[14.547,14.806],[15.149,13.627]]},{"id":151,"n":"Great Marlborough Street","p":[[8.896,13.56],[10.038,14.052]]},{"id":152,"n":"Berwick Street","p":[[14.043,13.508],[13.502,14.525]]},{"id":153,"n":"Wardour Mews","p":[[13.934,14.748],[14.324,14.017],[14.551,13.501]]},{"id":154,"n":"Queen Street (II)","p":[[19.146,13.476],[19.627,13.739]]},{"id":155,"n":"Batemans Buildings","p":[[18.402,15.139],[19.002,13.788],[19.146,13.476]]},{"id":156,"n":"Wardour Street","p":[[15.149,13.627],[15.277,13.375]]},{"id":157,"n":"Queen Street (II)","p":[[18.665,13.191],[19.146,13.476]]},{"id":158,"n":"Frith Street","p":[[17.895,14.9],[18.361,13.867],[18.665,13.191]]},{"id":159,"n":"Bentinck Street","p":[[13.379,13.164],[14.043,13.508]]},{"id":160,"n":"Portland Mews","p":[[12.689,14.115],[12.782,13.936],[12.942,13.597],[13.103,13.675],[13.379,13.164]]},{"id":161,"n":"Argyll Place","p":[[7.912,13.136],[8.896,13.56]]},{"id":162,"n":"Argyll Street","p":[[7.912,13.136],[7.235,14.425]]},{"id":163,"n":"Ship Yard","p":[[15.573,13.84],[15.819,13.322],[15.457,13.131]]},{"id":164,"n":"Wardour Street","p":[[15.277,13.375],[15.457,13.131]]},{"id":165,"n":"Edward Street","p":[[14.809,13.107],[15.277,13.375]]},{"id":166,"n":"Regent Street","p":[[6.47,13.027],[6.232,13.471],[6.149,13.812]]},{"id":167,"n":"Bentinck Street","p":[[13.379,13.164],[13.085,13.003]]},{"id":168,"n":"Edward Street","p":[[14.364,12.852],[14.809,13.107]]},{"id":169,"n":"Berwick Street","p":[[14.364,12.852],[14.043,13.508]]},{"id":170,"n":"Carnaby Street","p":[[8.896,13.56],[8.939,12.832]]},{"id":171,"n":"Berwick Street","p":[[14.417,12.743],[14.364,12.852]]},{"id":172,"n":"Argyll Place","p":[[7.208,12.74],[7.912,13.136]]},{"id":173,"n":"Queen Street (II)","p":[[18.665,13.191],[17.707,12.645]]},{"id":174,"n":"Dean Street","p":[[17.194,13.803],[17.577,12.939],[17.707,12.645]]},{"id":175,"n":"Hanover Street","p":[[5.187,12.61],[6.47,13.027]]},{"id":176,"n":"Argyll Place","p":[[6.759,12.486],[7.208,12.74]]},{"id":177,"n":"Regent Street","p":[[6.759,12.486],[6.47,13.027]]},{"id":178,"n":"Broad Street","p":[[13.911,12.479],[14.417,12.743]]},{"id":179,"n":"Green Dragon Yard","p":[[7.417,12.476],[7.851,12.745]]},{"id":180,"n":"King Street (I)","p":[[7.417,12.476],[7.208,12.74]]},{"id":181,"n":"Tyler Court","p":[[9.097,12.385],[9.553,12.727]]},{"id":182,"n":"Carnaby Street","p":[[8.939,12.832],[8.924,12.636],[9.097,12.385]]},{"id":183,"n":"Hanover Street","p":[[4.25,12.305],[5.187,12.61]]},{"id":184,"n":"Princes Street/Hanover Square","p":[[5.357,14.215],[3.769,13.705],[4.25,12.305]]},{"id":185,"n":"West Street","p":[[9.553,12.727],[9.858,12.291]]},{"id":186,"n":"Berwick Street","p":[[14.417,12.743],[14.706,12.25]]},{"id":187,"n":"Broad Street","p":[[13.397,12.204],[13.911,12.479]]},{"id":188,"n":"Wardour Street","p":[[15.457,13.131],[15.877,12.135]]},{"id":189,"n":"Richmond Buildings/Mews","p":[[16.942,12.118],[16.49,13.016],[16.436,13.024],[16.271,13.405],[17.194,13.803]]},{"id":190,"n":"Little Marlborough Street","p":[[8.939,12.832],[7.752,12.055]]},{"id":191,"n":"King Street (I)","p":[[7.752,12.055],[7.417,12.476]]},{"id":192,"n":"Dean Street","p":[[17.707,12.645],[17.97,12.048]]},{"id":193,"n":"Broad Street","p":[[13.007,11.996],[13.397,12.204]]},{"id":194,"n":"Poland Street","p":[[12.208,13.86],[13.007,11.996]]},{"id":195,"n":"West Street","p":[[9.858,12.291],[10.055,11.991]]},{"id":196,"n":"Kemps Court","p":[[14.191,11.97],[14.706,12.25]]},{"id":197,"n":"Hopkins Street","p":[[13.911,12.479],[14.191,11.97]]},{"id":198,"n":"Duck Lane/Ham Square","p":[[14.809,13.107],[15.275,12.1],[15.327,12.016],[15.475,12.05],[15.522,11.953],[15.877,12.135]]},{"id":199,"n":"Lowndes Court","p":[[9.377,11.945],[9.858,12.291]]},{"id":200,"n":"Carnaby Street","p":[[9.097,12.385],[9.377,11.945]]},{"id":201,"n":"Marshall Street","p":[[9.553,12.727],[10.365,12.975],[10.837,11.924]]},{"id":202,"n":"Carnaby Street","p":[[9.377,11.945],[9.436,11.852]]},{"id":203,"n":"Broad Street","p":[[13.007,11.996],[12.653,11.838]]},{"id":204,"n":"Wardour Street","p":[[15.877,12.135],[16.064,11.717]]},{"id":205,"n":"Map Frame","p":[[19.627,13.739],[19.685,11.699]]},{"id":206,"n":"Marlborough Court","p":[[10.055,11.991],[9.558,11.66]]},{"id":207,"n":"Carnaby Street","p":[[9.436,11.852],[9.558,11.66]]},{"id":208,"n":"Tyler Street","p":[[8.083,11.64],[9.097,12.385]]},{"id":209,"n":"King Street (I)","p":[[8.083,11.64],[7.752,12.055]]},{"id":210,"n":"Dean Street","p":[[17.97,12.048],[18.151,11.636]]},{"id":211,"n":"South Row","p":[[10.321,11.583],[10.837,11.924]]},{"id":212,"n":"West Street","p":[[10.055,11.991],[10.321,11.583]]},{"id":213,"n":"Old Compton Street","p":[[19.416,11.539],[19.685,11.699]]},{"id":214,"n":"Frith Street","p":[[18.665,13.191],[18.967,12.519],[19.416,11.539]]},{"id":215,"n":"Hopkins Street","p":[[14.191,11.97],[14.417,11.536]]},{"id":216,"n":"Broad Street","p":[[12.653,11.838],[12.032,11.535]]},{"id":217,"n":"Dufours Place","p":[[12.032,11.535],[11.589,12.483],[11.805,12.613]]},{"id":218,"n":"Pews Place","p":[[9.436,11.852],[9.208,11.691],[9.083,11.661],[8.751,11.395]]},{"id":219,"n":"Maddox Street","p":[[5.866,11.328],[6.759,12.486]]},{"id":220,"n":"Pollen Street","p":[[5.187,12.61],[5.456,11.636],[5.866,11.328]]},{"id":221,"n":"Tylers Court","p":[[15.251,11.312],[15.637,11.518],[15.807,11.607],[16.064,11.717]]},{"id":222,"n":"Berwick Street","p":[[14.706,12.25],[15.251,11.312]]},{"id":223,"n":"Regent Street","p":[[7.396,11.296],[6.759,12.486]]},{"id":224,"n":"New Street","p":[[13.86,11.284],[13.397,12.204]]},{"id":225,"n":"Cock Court","p":[[14.417,11.536],[13.893,11.22]]},{"id":226,"n":"New Street","p":[[13.893,11.22],[13.86,11.284]]},{"id":227,"n":"Cross Street","p":[[9.839,11.218],[10.321,11.583]]},{"id":228,"n":"Carnaby Street","p":[[9.558,11.66],[9.839,11.218]]},{"id":229,"n":"Fouberts Place","p":[[7.459,11.187],[8.083,11.64]]},{"id":230,"n":"Regent Street","p":[[7.396,11.296],[7.459,11.187]]},{"id":231,"n":"Berwick Street","p":[[15.251,11.312],[15.356,11.147]]},{"id":232,"n":"Meards Court/Street","p":[[16.302,11.124],[16.825,11.495],[17.144,11.71],[17.4,11.808],[17.472,11.807],[17.97,12.048]]},{"id":233,"n":"Wardour Street","p":[[16.064,11.717],[16.277,11.189],[16.302,11.124]]},{"id":234,"n":"Broad Street","p":[[12.032,11.535],[11.204,11.111]]},{"id":235,"n":"Marshall Street","p":[[10.837,11.924],[11.204,11.111]]},{"id":236,"n":"Black Lion Court","p":[[15.452,10.967],[15.836,11.243]]},{"id":237,"n":"Berwick Street","p":[[15.356,11.147],[15.452,10.967]]},{"id":238,"n":"Old Compton Street","p":[[18.46,10.936],[18.808,11.154],[19.416,11.539]]},{"id":239,"n":"Dean Street","p":[[18.151,11.636],[18.46,10.936]]},{"id":240,"n":"Map Frame","p":[[19.685,11.699],[19.708,10.902]]},{"id":241,"n":"Frith Street","p":[[19.416,11.539],[19.708,10.902]]},{"id":242,"n":"Pulteney Court (I)","p":[[13.127,10.853],[13.86,11.284]]},{"id":243,"n":"Cambridge Street","p":[[12.653,11.838],[12.792,11.512],[13.074,10.959],[13.127,10.853]]},{"id":244,"n":"Maidenhead Court","p":[[15.356,11.147],[14.826,10.851]]},{"id":245,"n":"Hopkins Street","p":[[14.417,11.536],[14.688,11.089],[14.826,10.851]]},{"id":246,"n":"Cross Street","p":[[9.351,10.825],[9.839,11.218]]},{"id":247,"n":"George Place (?)","p":[[9.351,10.825],[9.046,11.271]]},{"id":248,"n":"Map Frame","p":[[19.708,10.902],[19.71,10.822]]},{"id":249,"n":"Marlborough Row","p":[[10.321,11.583],[10.77,10.772]]},{"id":250,"n":"Maddox Street","p":[[5.372,10.687],[5.866,11.328]]},{"id":251,"n":"Masons Arms Yard","p":[[4.931,11.509],[5.063,10.877],[5.372,10.687]]},{"id":252,"n":"Peter Street","p":[[15.64,10.645],[16.302,11.124]]},{"id":253,"n":"Berwick Street","p":[[15.452,10.967],[15.64,10.645]]},{"id":254,"n":"Peter Street","p":[[15.64,10.645],[15.597,10.617]]},{"id":255,"n":"Marlborough Row","p":[[10.77,10.772],[10.865,10.599]]},{"id":256,"n":"Silver Street","p":[[12.641,10.564],[13.127,10.853]]},{"id":257,"n":"Cross Street","p":[[8.982,10.534],[9.351,10.825]]},{"id":258,"n":"King Street (I)","p":[[8.083,11.64],[8.982,10.534]]},{"id":259,"n":"New Street/Husband Street","p":[[14.826,10.851],[14.243,10.525],[13.893,11.22]]},{"id":260,"n":"Carnaby Court","p":[[10.351,10.469],[10.77,10.772]]},{"id":261,"n":"Carnaby Street","p":[[9.839,11.218],[10.351,10.469]]},{"id":262,"n":"Silver Street","p":[[12.459,10.457],[12.641,10.564]]},{"id":263,"n":"Tent Court","p":[[12.251,10.854],[12.459,10.457]]},{"id":264,"n":"Peter Street","p":[[15.167,10.33],[15.597,10.617]]},{"id":265,"n":"Hopkins Street","p":[[14.826,10.851],[14.971,10.593],[15.167,10.33]]},{"id":266,"n":"Maddox Street","p":[[5.09,10.322],[5.372,10.687]]},{"id":267,"n":"Little Dean Street","p":[[16.648,10.299],[16.928,10.552],[17.11,10.697],[17.269,10.873],[17.45,11.109],[17.828,11.39],[18.151,11.636]]},{"id":268,"n":"Wardour Street","p":[[16.302,11.124],[16.444,10.75],[16.648,10.299]]},{"id":269,"n":"Peter Street","p":[[15.167,10.33],[15.066,10.267]]},{"id":270,"n":"Silver Street","p":[[12.105,10.247],[12.459,10.457]]},{"id":271,"n":"Church Street","p":[[18.771,10.23],[19.71,10.822]]},{"id":272,"n":"Dean Street","p":[[18.46,10.936],[18.551,10.728],[18.771,10.23]]},{"id":273,"n":"Maddox Street","p":[[5.09,10.322],[5.069,10.41],[4.308,10.204]]},{"id":274,"n":"George Street","p":[[4.308,10.204],[3.744,12.013],[4.25,12.305]]},{"id":275,"n":"Silver Street","p":[[11.828,10.062],[12.105,10.247]]},{"id":276,"n":"Marshall Street","p":[[11.204,11.111],[11.56,10.459],[11.828,10.062]]},{"id":277,"n":"Greens Court","p":[[15.066,10.267],[15.225,10.059]]},{"id":278,"n":"Wardour Street","p":[[16.648,10.299],[16.946,10.039]]},{"id":279,"n":"Regent Street","p":[[7.459,11.187],[8.135,10.015]]},{"id":280,"n":"Map Frame","p":[[19.71,10.822],[19.734,9.968]]},{"id":281,"n":"Old Compton Street","p":[[17.028,9.955],[17.229,10.125],[17.643,10.424],[18.46,10.936]]},{"id":282,"n":"Wardour Street","p":[[16.946,10.039],[17.028,9.955]]},{"id":283,"n":"Peter Street","p":[[15.066,10.267],[14.532,9.938]]},{"id":284,"n":"Maddox Street","p":[[4.308,10.204],[3.548,9.883]]},{"id":285,"n":"Map Frame","p":[[3.548,9.883],[3.45,15.169]]},{"id":286,"n":"Little Pulteney Street","p":[[16.021,9.828],[16.648,10.299]]},{"id":287,"n":"Walkers Court","p":[[15.597,10.617],[16.021,9.828]]},{"id":288,"n":"King Street (I)","p":[[8.982,10.534],[9.563,9.813]]},{"id":289,"n":"Silver Street","p":[[11.828,10.062],[11.489,9.81]]},{"id":290,"n":"Pulteney Court (II)","p":[[15.225,10.059],[14.846,9.784]]},{"id":291,"n":"Wardour Street","p":[[17.028,9.955],[17.217,9.726]]},{"id":292,"n":"Little Pulteney Street","p":[[15.785,9.657],[16.021,9.828]]},{"id":293,"n":"Unknown-B","p":[[15.785,9.657],[15.546,10.027]]},{"id":294,"n":"King Street (II)","p":[[19.065,9.562],[19.734,9.968]]},{"id":295,"n":"Dean Street","p":[[18.771,10.23],[19.065,9.562]]},{"id":296,"n":"Little Pulteney Street","p":[[15.603,9.508],[15.721,9.61],[15.785,9.657]]},{"id":297,"n":"Greens Court","p":[[15.225,10.059],[15.603,9.508]]},{"id":298,"n":"Conduit Street","p":[[6.053,9.49],[7.396,11.296]]},{"id":299,"n":"Mill Street","p":[[6.053,9.49],[5.26,10.098],[5.105,10.259],[5.09,10.322]]},{"id":300,"n":"Silver Street","p":[[11.489,9.81],[11.032,9.471]]},{"id":301,"n":"Carnaby Street","p":[[10.351,10.469],[11.032,9.471]]},{"id":302,"n":"Little Crown Court","p":[[16.317,9.469],[16.946,10.039]]},{"id":303,"n":"Great Crown Court","p":[[16.021,9.828],[16.317,9.469]]},{"id":304,"n":"Little Pulteney Street","p":[[15.362,9.302],[15.603,9.508]]},{"id":305,"n":"Old Burlington Mews","p":[[8.135,10.015],[6.772,9.173]]},{"id":306,"n":"Chapel Place","p":[[8.627,9.163],[9.563,9.813]]},{"id":307,"n":"Regent Street","p":[[8.135,10.015],[8.627,9.163]]},{"id":308,"n":"Silver Street","p":[[11.032,9.471],[10.616,9.159]]},{"id":309,"n":"Naylors Yard","p":[[10.616,9.159],[9.663,10.411]]},{"id":310,"n":"Macclesfield Street","p":[[19.065,9.562],[19.306,9.09]]},{"id":311,"n":"Upper Rupert Street","p":[[17.217,9.726],[16.552,9.088]]},{"id":312,"n":"Rupert Street","p":[[16.412,9.285],[16.552,9.088]]},{"id":313,"n":"Regent Street","p":[[8.627,9.163],[8.702,9.062]]},{"id":314,"n":"Mill Street","p":[[6.545,9.044],[6.053,9.49]]},{"id":315,"n":"Upper James Street","p":[[12.026,9.023],[11.489,9.81]]},{"id":316,"n":"Little Pulteney Street","p":[[14.993,8.988],[15.263,9.217],[15.362,9.302]]},{"id":317,"n":"William and Mary Yard","p":[[14.993,8.988],[14.678,9.38],[14.462,9.646],[14.02,10.426]]},{"id":318,"n":"Silver Street","p":[[10.616,9.159],[10.288,8.913]]},{"id":319,"n":"King Street (I)","p":[[9.563,9.813],[10.288,8.913]]},{"id":320,"n":"Great Crown Court","p":[[16.317,9.469],[15.733,8.885]]},{"id":321,"n":"Great Crown Court","p":[[15.733,8.885],[15.362,9.302]]},{"id":322,"n":"Little Pulteney Street","p":[[14.731,8.75],[14.878,8.891],[14.993,8.988]]},{"id":323,"n":"King Street (II)","p":[[19.065,9.562],[17.906,8.722]]},{"id":324,"n":"Wardour Street","p":[[17.217,9.726],[17.906,8.722]]},{"id":325,"n":"Little Pulteney Street","p":[[14.685,8.706],[14.731,8.75]]},{"id":326,"n":"Little Windmill Street","p":[[13.127,10.853],[13.16,10.787],[13.789,9.86],[14.289,9.192],[14.685,8.706]]},{"id":327,"n":"Rupert Street","p":[[16.552,9.088],[16.759,8.699]]},{"id":328,"n":"Silver Street","p":[[10.288,8.913],[9.883,8.598]]},{"id":329,"n":"Rupert Street","p":[[16.759,8.699],[16.886,8.459]]},{"id":330,"n":"Golden Square","p":[[11.149,8.377],[12.026,9.023]]},{"id":331,"n":"Upper John Street","p":[[11.149,8.377],[10.616,9.159]]},{"id":332,"n":"Queens Head Court","p":[[15.733,8.885],[15.682,8.79],[15.642,8.753],[15.493,8.642],[15.389,8.543],[15.11,8.318]]},{"id":333,"n":"Great Windmill Street","p":[[14.731,8.75],[15.11,8.318]]},{"id":334,"n":"George Yard","p":[[18.112,8.28],[18.409,8.48],[18.695,8.692],[18.9,8.842],[19.306,9.09]]},{"id":335,"n":"Princes Street (III)","p":[[17.906,8.722],[18.112,8.28]]},{"id":336,"n":"Beak Street","p":[[9.883,8.598],[9.726,8.475],[9.164,8.228]]},{"id":337,"n":"Regent Street","p":[[8.702,9.062],[9.067,8.4],[9.164,8.228]]},{"id":338,"n":"Plough Yard","p":[[16.886,8.459],[16.503,8.204]]},{"id":339,"n":"Great Windmill Street","p":[[15.11,8.318],[15.201,8.202]]},{"id":340,"n":"Brewer Street","p":[[14.137,8.187],[14.415,8.446],[14.685,8.706]]},{"id":341,"n":"Great Pulteney Street","p":[[12.641,10.564],[13.395,9.189],[13.785,8.645],[14.137,8.187]]},{"id":342,"n":"Golden Square","p":[[12.653,8.105],[12.026,9.023]]},{"id":343,"n":"Conduit Street","p":[[5.022,8.104],[6.053,9.49]]},{"id":344,"n":"George Street","p":[[5.022,8.104],[4.308,10.204]]},{"id":345,"n":"Richmond Street","p":[[17.081,8.092],[17.906,8.722]]},{"id":346,"n":"Rupert Street","p":[[16.886,8.459],[17.081,8.092]]},{"id":347,"n":"Regent Street","p":[[9.164,8.228],[9.248,8.087]]},{"id":348,"n":"Map Frame","p":[[3.581,8.069],[3.548,9.883]]},{"id":349,"n":"New Burlington Street","p":[[7.043,7.998],[8.702,9.062]]},{"id":350,"n":"New Burlington Mews","p":[[9.019,7.981],[9.248,8.087]]},{"id":351,"n":"Regent Street","p":[[9.248,8.087],[9.364,7.88]]},{"id":352,"n":"Macclesfield Street/Gerrard Street","p":[[18.328,7.818],[19.555,8.61],[19.306,9.09]]},{"id":353,"n":"Princes Street (III)","p":[[18.112,8.28],[18.328,7.818]]},{"id":354,"n":"Boyle Street","p":[[7.043,7.998],[6.886,8.261],[6.185,7.799]]},{"id":355,"n":"Archer Street","p":[[15.527,7.785],[16.759,8.699]]},{"id":356,"n":"Great Windmill Street","p":[[15.201,8.202],[15.527,7.785]]},{"id":357,"n":"Brewer Street","p":[[13.674,7.755],[14.137,8.187]]},{"id":358,"n":"Bridle Street","p":[[12.105,10.247],[12.739,9.015],[13.674,7.755]]},{"id":359,"n":"Great Windmill Street","p":[[15.527,7.785],[15.561,7.744]]},{"id":360,"n":"Map Frame","p":[[19.734,9.968],[19.797,7.741]]},{"id":361,"n":"Ham Yard","p":[[15.319,7.527],[15.274,7.579],[15.561,7.744]]},{"id":362,"n":"New Burlington Mews","p":[[8.207,7.521],[9.019,7.981]]},{"id":363,"n":"Smiths Court/Yard","p":[[14.165,7.515],[14.425,7.8],[14.56,7.655],[15.201,8.202]]},{"id":364,"n":"Ham Yard","p":[[14.962,7.507],[15.264,7.761]]},{"id":365,"n":"Ham Yard","p":[[15.095,7.912],[14.835,7.653],[14.962,7.507]]},{"id":366,"n":"Princes Street (III)","p":[[18.328,7.818],[18.506,7.472]]},{"id":367,"n":"Heddon Court","p":[[8.592,7.471],[9.364,7.88]]},{"id":368,"n":"Golden Square","p":[[11.789,7.438],[12.653,8.105]]},{"id":369,"n":"Golden Square","p":[[11.789,7.438],[11.149,8.377]]},{"id":370,"n":"Lisle Street","p":[[19.296,7.437],[19.797,7.741]]},{"id":371,"n":"Warwick Street","p":[[9.883,8.598],[10.639,7.406]]},{"id":372,"n":"Ham Yard","p":[[15.102,7.328],[15.319,7.527]]},{"id":373,"n":"Ham Yard","p":[[14.962,7.507],[15.102,7.328]]},{"id":374,"n":"Brewer Street","p":[[13.194,7.312],[13.486,7.58],[13.674,7.755]]},{"id":375,"n":"Lower James Street","p":[[13.194,7.312],[12.653,8.105]]},{"id":376,"n":"Ham Yard","p":[[15.319,7.527],[15.496,7.312]]},{"id":377,"n":"Heddon Court","p":[[8.238,7.225],[8.592,7.471]]},{"id":378,"n":"Lower John Street","p":[[12.039,7.088],[11.789,7.438]]},{"id":379,"n":"George Court (II)","p":[[17.576,7.072],[18.506,7.472]]},{"id":380,"n":"Rupert Street","p":[[17.081,8.092],[17.371,7.468],[17.576,7.072]]},{"id":381,"n":"Conduit Street","p":[[4.253,7.069],[5.022,8.104]]},{"id":382,"n":"New Bond Street","p":[[4.253,7.069],[3.581,8.069]]},{"id":383,"n":"Lisle Street","p":[[18.68,7.063],[19.296,7.437]]},{"id":384,"n":"Princes Street (III)","p":[[18.506,7.472],[18.68,7.063]]},{"id":385,"n":"Coach & Horses Yard","p":[[6.185,7.799],[5.666,7.415],[5.597,7.339],[5.61,7.246],[5.588,7.2],[5.36,7.04]]},{"id":386,"n":"Great Windmill Street","p":[[15.561,7.744],[15.7,7.394],[15.864,7.007]]},{"id":387,"n":"Leicester Street (I)","p":[[10.639,7.406],[9.874,6.963]]},{"id":388,"n":"Regent Street","p":[[9.364,7.88],[9.874,6.963]]},{"id":389,"n":"Old Burlington Street","p":[[6.73,6.961],[6.185,7.799]]},{"id":390,"n":"Bull Yard","p":[[15.864,7.007],[15.446,6.927],[15.317,7.102]]},{"id":391,"n":"Orchard Place","p":[[13.544,6.859],[13.935,7.189]]},{"id":392,"n":"Sherrard Street","p":[[13.544,6.859],[13.194,7.312]]},{"id":393,"n":"Golden Place","p":[[11.533,6.987],[11.661,6.81],[12.039,7.088]]},{"id":394,"n":"Catherine Wheel Yard","p":[[15.936,6.782],[16.301,7.006],[16.822,7.325]]},{"id":395,"n":"Great Windmill Street","p":[[15.864,7.007],[15.936,6.782]]},{"id":396,"n":"Bruton Street","p":[[4.253,7.069],[3.608,6.626]]},{"id":397,"n":"Map Frame","p":[[3.608,6.626],[3.581,8.069]]},{"id":398,"n":"Great Windmill Street","p":[[15.936,6.782],[15.977,6.653],[16.001,6.598]]},{"id":399,"n":"Brewer Street","p":[[12.384,6.571],[12.716,6.874],[13.194,7.312]]},{"id":400,"n":"Lower John Street","p":[[12.384,6.571],[12.039,7.088]]},{"id":401,"n":"Leicester Street (I)","p":[[9.874,6.963],[9.17,6.477]]},{"id":402,"n":"Heddon Street","p":[[9.17,6.477],[8.592,7.471]]},{"id":403,"n":"Queen Street (III)","p":[[16.001,6.598],[14.981,6.473]]},{"id":404,"n":"Wellington Mews","p":[[14.055,6.835],[14.585,7.26],[14.754,7.066],[14.83,7.03],[14.928,6.912],[14.981,6.473]]},{"id":405,"n":"Map Frame","p":[[19.797,7.741],[19.833,6.47]]},{"id":406,"n":"Leicester Street (II)","p":[[19.296,7.437],[19.833,6.47]]},{"id":407,"n":"Clifford Street","p":[[5.855,6.45],[6.73,6.961]]},{"id":408,"n":"Regent Street","p":[[9.874,6.963],[10.199,6.38]]},{"id":409,"n":"Leicester Street (I)","p":[[9.17,6.477],[8.98,6.369]]},{"id":410,"n":"Queen Street (III)","p":[[13.955,6.327],[14.981,6.473]]},{"id":411,"n":"Sherrard Street","p":[[13.955,6.327],[13.544,6.859]]},{"id":412,"n":"Leicester Street (I)","p":[[8.98,6.369],[8.905,6.317]]},{"id":413,"n":"Unknown-A1","p":[[9.976,6.252],[10.199,6.38]]},{"id":414,"n":"Sidney Alley","p":[[19.833,6.47],[19.07,6.095]]},{"id":415,"n":"Princes Street (III)","p":[[18.68,7.063],[18.924,6.541],[19.054,6.172],[19.07,6.095]]},{"id":416,"n":"Great Windmill Street","p":[[16.001,6.598],[16.119,6.325],[16.221,6.089]]},{"id":417,"n":"Unknown-C","p":[[8.98,6.369],[9.171,6.072]]},{"id":418,"n":"Unknown-A2","p":[[9.606,6.039],[9.976,6.252]]},{"id":419,"n":"Map Frame","p":[[19.833,6.47],[19.836,6.37],[19.846,6.033]]},{"id":420,"n":"Angel Court","p":[[15.571,5.992],[16.221,6.089]]},{"id":421,"n":"Brewer Street","p":[[11.689,5.933],[12.384,6.571]]},{"id":422,"n":"Warwick Street","p":[[10.639,7.406],[11.164,6.572],[11.689,5.933]]},{"id":423,"n":"Marylebone Street","p":[[11.689,5.933],[11.545,5.951]]},{"id":424,"n":"Clifford Street","p":[[4.968,5.923],[5.855,6.45]]},{"id":425,"n":"New Bond Street","p":[[4.968,5.923],[4.253,7.069]]},{"id":426,"n":"Princes Street (III)","p":[[19.07,6.095],[19.095,5.973],[19.099,5.839]]},{"id":427,"n":"Francis Street","p":[[12.625,5.815],[12.384,6.571]]},{"id":428,"n":"Marylebone Street","p":[[12.625,5.815],[11.689,5.933]]},{"id":429,"n":"Kings Arms Yard","p":[[12.938,5.774],[12.953,6.199],[13.135,6.374]]},{"id":430,"n":"Marylebone Street","p":[[12.938,5.774],[12.835,5.788],[12.625,5.815]]},{"id":431,"n":"North Coventry Street","p":[[19.262,5.7],[19.846,6.033]]},{"id":432,"n":"Princes Street (III)","p":[[19.099,5.839],[19.262,5.7]]},{"id":433,"n":"Coventry Street","p":[[19.099,5.839],[18.325,5.646]]},{"id":434,"n":"Rupert Street","p":[[17.576,7.072],[17.864,6.517],[18.325,5.646]]},{"id":435,"n":"Glasshouse Street","p":[[11.545,5.951],[10.61,5.642]]},{"id":436,"n":"Regent Street","p":[[10.199,6.38],[10.61,5.642]]},{"id":437,"n":"Coventry Street","p":[[18.325,5.646],[18.114,5.597]]},{"id":438,"n":"Sherrard Street","p":[[14.488,5.57],[14.238,5.984],[13.955,6.327]]},{"id":439,"n":"Marylebone Street","p":[[14.488,5.57],[12.938,5.774]]},{"id":440,"n":"New Bond Street","p":[[5.234,5.511],[4.968,5.923]]},{"id":441,"n":"Coventry Street","p":[[18.114,5.597],[17.603,5.467]]},{"id":442,"n":"Arundel Street","p":[[17.603,5.467],[16.98,6.703]]},{"id":443,"n":"Coventry Street","p":[[17.603,5.467],[17.482,5.439]]},{"id":444,"n":"Tichborne Street","p":[[14.901,5.419],[14.589,5.535],[14.488,5.57]]},{"id":445,"n":"Vigo Street","p":[[10.61,5.642],[9.664,5.329]]},{"id":446,"n":"Coventry Street","p":[[17.482,5.439],[17.032,5.325],[16.893,5.282],[16.636,5.19]]},{"id":447,"n":"Great Windmill Street","p":[[16.221,6.089],[16.26,6.0],[16.492,5.542],[16.636,5.19]]},{"id":448,"n":"Princes Street (III)","p":[[19.262,5.7],[19.549,5.147]]},{"id":449,"n":"Tichborne Street","p":[[16.636,5.19],[16.509,5.133],[16.367,5.114],[16.2,5.1],[16.014,5.123],[15.696,5.202],[15.077,5.353],[14.901,5.419]]},{"id":450,"n":"Vigo Street","p":[[9.664,5.329],[8.94,5.089],[8.784,5.088]]},{"id":451,"n":"Saville Row","p":[[8.784,5.088],[7.043,7.998]]},{"id":452,"n":"Tichborne Street","p":[[16.636,5.19],[16.68,5.083]]},{"id":453,"n":"Regents Quadrant","p":[[14.661,5.055],[14.901,5.419]]},{"id":454,"n":"Grafton Street","p":[[4.527,5.037],[5.234,5.511]]},{"id":455,"n":"Regents Quadrant","p":[[10.61,5.642],[10.633,5.594],[10.703,5.465],[10.79,5.348],[10.922,5.222],[11.104,5.083],[11.345,4.968]]},{"id":456,"n":"Cork Street","p":[[6.788,4.939],[5.855,6.45]]},{"id":457,"n":"Burlington Gardens","p":[[8.784,5.088],[8.555,5.087],[8.024,4.752]]},{"id":458,"n":"Old Burlington Street","p":[[8.024,4.752],[6.73,6.961]]},{"id":459,"n":"Cork Mews","p":[[6.788,4.939],[6.274,4.648],[6.029,4.917],[5.777,5.195],[5.553,5.497]]},{"id":460,"n":"Picadilly","p":[[16.68,5.083],[15.78,4.627]]},{"id":461,"n":"Whitcomb Court","p":[[18.71,4.597],[19.549,5.147]]},{"id":462,"n":"Oxendon Street","p":[[18.71,4.597],[18.114,5.597]]},{"id":463,"n":"Regents Quadrant","p":[[13.198,4.573],[13.393,4.615],[13.556,4.647],[13.699,4.689],[13.809,4.725],[13.953,4.779],[14.112,4.854],[14.272,4.92],[14.415,4.978],[14.486,5.013],[14.661,5.055]]},{"id":464,"n":"Air Street","p":[[13.198,4.573],[12.625,5.815]]},{"id":465,"n":"Map Frame","p":[[19.846,6.033],[19.888,4.558]]},{"id":466,"n":"Princes Street (III)","p":[[19.549,5.147],[19.888,4.558]]},{"id":467,"n":"Grafton Street","p":[[3.699,4.483],[4.527,5.037]]},{"id":468,"n":"Grafton Street","p":[[3.649,4.449],[3.699,4.483]]},{"id":469,"n":"Map Frame","p":[[3.649,4.449],[3.608,6.626]]},{"id":470,"n":"Haymarket","p":[[16.68,5.083],[16.886,5.138],[17.435,4.319]]},{"id":471,"n":"Picadilly","p":[[15.78,4.627],[15.082,4.273]]},{"id":472,"n":"Regent Street","p":[[14.661,5.055],[15.082,4.273]]},{"id":473,"n":"Arundel Place","p":[[17.464,4.252],[18.023,4.614],[17.482,5.439]]},{"id":474,"n":"Haymarket","p":[[17.435,4.319],[17.464,4.252]]},{"id":475,"n":"Burlington Gardens","p":[[8.024,4.752],[7.218,4.244]]},{"id":476,"n":"Cork Street","p":[[7.218,4.244],[6.788,4.939]]},{"id":477,"n":"Haymarket","p":[[17.464,4.252],[17.595,4.074]]},{"id":478,"n":"Panton Street","p":[[19.051,4.026],[19.888,4.558]]},{"id":479,"n":"Oxendon Street","p":[[19.051,4.026],[18.71,4.597]]},{"id":480,"n":"Burlington Gardens","p":[[7.218,4.244],[6.569,3.835]]},{"id":481,"n":"New Bond Street","p":[[6.569,3.835],[5.234,5.511]]},{"id":482,"n":"Jermyn Street","p":[[16.549,3.805],[17.435,4.319]]},{"id":483,"n":"Map Frame","p":[[19.888,4.558],[19.89,4.49],[19.912,3.701],[19.256,3.682]]},{"id":484,"n":"Oxendon Street","p":[[19.256,3.682],[19.051,4.026]]},{"id":485,"n":"Jermyn Street","p":[[16.357,3.681],[16.549,3.805]]},{"id":486,"n":"White Bear Yard","p":[[16.357,3.681],[15.78,4.627]]},{"id":487,"n":"Map Frame","p":[[19.256,3.682],[18.499,3.66]]},{"id":488,"n":"Panton Street","p":[[18.499,3.66],[19.051,4.026]]},{"id":489,"n":"Map Frame","p":[[18.499,3.66],[17.863,3.642]]},{"id":490,"n":"Haymarket","p":[[17.595,4.074],[17.863,3.642]]},{"id":491,"n":"Map Frame","p":[[17.863,3.642],[16.808,3.612]]},{"id":492,"n":"St James's Market","p":[[16.808,3.612],[17.595,4.074]]},{"id":493,"n":"Map Frame","p":[[16.808,3.612],[16.756,3.61],[16.67,3.608]]},{"id":494,"n":"Market Street (II)","p":[[16.549,3.805],[16.67,3.608]]},{"id":495,"n":"Map Frame","p":[[16.67,3.608],[16.211,3.595]]},{"id":496,"n":"Jermyn Street","p":[[16.211,3.595],[16.357,3.681]]},{"id":497,"n":"Vine Street","p":[[11.625,3.571],[11.969,3.752]]},{"id":498,"n":"Map Frame","p":[[16.211,3.595],[15.476,3.571]]},{"id":499,"n":"Regent Street","p":[[15.476,3.571],[15.082,4.273]]},{"id":500,"n":"Map Frame","p":[[15.476,3.571],[13.692,3.513]]},{"id":501,"n":"Picadilly","p":[[15.082,4.273],[13.692,3.513]]},{"id":502,"n":"Air Street","p":[[13.692,3.513],[13.198,4.573]]},{"id":503,"n":"Map Frame","p":[[13.692,3.513],[12.125,3.475]]},{"id":504,"n":"George Court (I)","p":[[11.969,3.752],[12.125,3.475]]},{"id":505,"n":"Map Frame","p":[[12.125,3.475],[11.688,3.465]]},{"id":506,"n":"Swallow Street","p":[[11.625,3.571],[11.688,3.465]]},{"id":507,"n":"Map Frame","p":[[11.688,3.465],[10.784,3.439]]},{"id":508,"n":"Sackville Street","p":[[9.664,5.329],[10.784,3.439]]},{"id":509,"n":"Map Frame","p":[[10.784,3.439],[9.783,3.41]]},{"id":510,"n":"Albany Street","p":[[9.783,3.41],[8.784,5.088]]},{"id":511,"n":"Map Frame","p":[[9.783,3.41],[7.799,3.353]]},{"id":512,"n":"Burlington Arcade","p":[[7.218,4.244],[7.799,3.353]]},{"id":513,"n":"Map Frame","p":[[7.799,3.353],[6.964,3.329]]},{"id":514,"n":"New Bond Street","p":[[6.569,3.835],[6.964,3.329]]},{"id":515,"n":"Map Frame","p":[[6.964,3.329],[5.65,3.292]]},{"id":516,"n":"Albemarle Street","p":[[4.527,5.037],[5.65,3.292]]},{"id":517,"n":"Map Frame","p":[[5.65,3.292],[4.502,3.259]]},{"id":518,"n":"Dover Street","p":[[3.699,4.483],[4.502,3.259]]},{"id":519,"n":"Map Frame","p":[[4.502,3.259],[3.671,3.235],[3.649,4.449]]},{"id":520,"n":"Vine Street","p":[[11.745,4.812],[11.878,5.175],[11.545,5.951]]},{"id":521,"n":"Vine Street","p":[[11.745,4.812],[11.722,4.759]]},{"id":522,"n":"Regents Quadrant","p":[[11.345,4.968],[11.541,4.826],[11.722,4.759]]},{"id":523,"n":"Regents Quadrant","p":[[11.722,4.759],[11.912,4.701],[12.102,4.637],[12.237,4.604]]},{"id":524,"n":"Regents Quadrant","p":[[12.237,4.604],[12.308,4.586],[12.465,4.57],[12.788,4.558],[12.998,4.552],[13.111,4.568],[13.198,4.573]]},{"id":525,"n":"Vine Street","p":[[12.329,3.895],[12.456,3.954]]},{"id":526,"n":"Vine Street","p":[[12.237,4.604],[12.169,4.25],[12.329,3.895]]},{"id":527,"n":"Vine Street","p":[[11.969,3.752],[12.329,3.895]]},{"id":528,"n":"Swallow Street","p":[[11.345,4.968],[11.081,4.488],[11.625,3.571]]},{"id":529,"n":"Clifford Street","p":[[7.422,7.365],[6.73,6.961]]}],"deaths":[{"x":13.588,"y":11.096,"a":30.5,"st":"Pulteney Court (I)","np":6,"db":63},{"x":9.878,"y":12.559,"a":-55.0,"st":"West Street","np":5,"db":149},{"x":14.654,"y":10.18,"a":-148.4,"st":"Peter Street","np":9,"db":137},{"x":15.221,"y":9.993,"a":-55.5,"st":"Greens Court","np":9,"db":168},{"x":13.163,"y":12.963,"a":-151.3,"st":"Bentinck Street","np":6,"db":73},{"x":13.806,"y":8.889,"a":-54.4,"st":"Great Pulteney Street","np":8,"db":164},{"x":13.102,"y":10.561,"a":-55.8,"st":"Little Windmill Street","np":6,"db":68},{"x":11.004,"y":11.867,"a":-65.7,"st":"Marshall Street","np":6,"db":83},{"x":15.155,"y":11.705,"a":-59.8,"st":"Berwick Street","np":6,"db":137},{"x":11.126,"y":9.644,"a":-143.4,"st":"Silver Street","np":7,"db":134},{"x":11.71,"y":13.59,"a":28.0,"st":"St James Workhouse","np":6,"db":109},{"x":12.341,"y":11.482,"a":-154.0,"st":"Broad Street","np":6,"db":18},{"x":10.587,"y":11.867,"a":33.5,"st":"South Row","np":5,"db":105},{"x":14.57,"y":10.577,"a":-150.8,"st":"New Street/Husband Street","np":9,"db":122},{"x":16.568,"y":14.323,"a":25.8,"st":"St Anns Court","np":3,"db":253},{"x":9.511,"y":10.672,"a":38.8,"st":"Cross Street","np":5,"db":172},{"x":13.337,"y":10.706,"a":-55.8,"st":"Little Windmill Street","np":6,"db":68},{"x":15.035,"y":10.195,"a":-148.4,"st":"Peter Street","np":9,"db":154},{"x":15.14,"y":10.04,"a":-144.0,"st":"Pulteney Court (II)","np":9,"db":163},{"x":10.871,"y":9.823,"a":-55.7,"st":"Carnaby Street","np":7,"db":135},{"x":12.546,"y":11.983,"a":-154.0,"st":"Broad Street","np":6,"db":14},{"x":11.824,"y":11.798,"a":115.0,"st":"Dufours Place","np":6,"db":40},{"x":12.192,"y":10.384,"a":30.7,"st":"Silver Street","np":6,"db":74},{"x":13.876,"y":12.75,"a":27.6,"st":"Broad Street","np":6,"db":88},{"x":12.308,"y":11.851,"a":-154.0,"st":"Broad Street","np":6,"db":15},{"x":10.974,"y":11.854,"a":-65.7,"st":"Marshall Street","np":6,"db":85},{"x":10.989,"y":9.759,"a":-55.7,"st":"Carnaby Street","np":7,"db":134},{"x":13.508,"y":13.34,"a":27.4,"st":"Bentinck Street","np":6,"db":99},{"x":10.807,"y":11.661,"a":-65.7,"st":"Marshall Street","np":6,"db":94},{"x":12.206,"y":13.643,"a":-66.8,"st":"Poland Street","np":6,"db":103},{"x":13.899,"y":13.988,"a":118.0,"st":"Berwick Street","np":6,"db":139},{"x":12.519,"y":11.615,"a":-154.0,"st":"Broad Street","np":6,"db":7},{"x":15.749,"y":12.651,"a":-67.1,"st":"Wardour Street","np":6,"db":175},{"x":12.856,"y":9.896,"a":-61.3,"st":"Great Pulteney Street","np":6,"db":98},{"x":12.989,"y":10.168,"a":-61.3,"st":"Great Pulteney Street","np":6,"db":86},{"x":13.686,"y":11.406,"a":116.7,"st":"New Street","np":6,"db":61},{"x":13.089,"y":11.117,"a":-63.0,"st":"Cambridge Street","np":6,"db":42},{"x":13.421,"y":11.082,"a":30.5,"st":"Pulteney Court (I)","np":6,"db":57},{"x":14.757,"y":9.368,"a":128.8,"st":"William and Mary Yard","np":9,"db":170},{"x":13.205,"y":13.169,"a":-151.3,"st":"Bentinck Street","np":6,"db":83},{"x":9.848,"y":12.533,"a":-55.0,"st":"West Street","np":5,"db":151},{"x":12.54,"y":12.005,"a":-154.0,"st":"Broad Street","np":6,"db":15},{"x":13.405,"y":10.245,"a":-55.8,"st":"Little Windmill Street","np":6,"db":90},{"x":14.432,"y":11.62,"a":-62.5,"st":"Hopkins Street","np":6,"db":99},{"x":15.986,"y":14.186,"a":25.8,"st":"St Anns Court","np":3,"db":223},{"x":10.898,"y":12.014,"a":-65.8,"st":"Marshall Street","np":6,"db":90},{"x":12.54,"y":13.414,"a":-66.8,"st":"Poland Street","np":6,"db":89},{"x":15.842,"y":12.38,"a":-67.1,"st":"Wardour Street","np":9,"db":177},{"x":16.549,"y":14.349,"a":25.8,"st":"St Anns Court","np":3,"db":252},{"x":11.2,"y":8.587,"a":36.4,"st":"Golden Square","np":7,"db":182},{"x":15.777,"y":12.172,"a":-67.1,"st":"Wardour Street","np":9,"db":172},{"x":11.017,"y":9.783,"a":-55.7,"st":"Carnaby Street","np":7,"db":132},{"x":11.683,"y":13.582,"a":28.0,"st":"St James Workhouse","np":6,"db":109},{"x":11.546,"y":12.279,"a":115.0,"st":"Dufours Place","np":6,"db":62},{"x":11.795,"y":15.077,"a":113.6,"st":"Poland Street","np":2,"db":182},{"x":13.045,"y":13.882,"a":-64.7,"st":"Portland Mews","np":6,"db":117},{"x":14.142,"y":13.133,"a":116.1,"st":"Berwick Street","np":6,"db":112},{"x":14.846,"y":10.011,"a":-148.4,"st":"Peter Street","np":9,"db":151},{"x":12.583,"y":11.011,"a":-62.3,"st":"Tent Court","np":6,"db":38},{"x":14.638,"y":12.921,"a":29.8,"st":"Edward Street","np":6,"db":127},{"x":12.473,"y":11.215,"a":-63.0,"st":"Cambridge Street","np":6,"db":28},{"x":14.497,"y":8.744,"a":-50.8,"st":"Little Windmill Street","np":8,"db":188},{"x":9.225,"y":10.836,"a":38.3,"st":"Cross Street","np":5,"db":184},{"x":17.939,"y":7.189,"a":23.3,"st":"George Court (II)","np":9,"db":373},{"x":11.171,"y":14.734,"a":23.3,"st":"Great Marlborough Street","np":4,"db":176},{"x":9.488,"y":10.706,"a":38.8,"st":"Cross Street","np":5,"db":172},{"x":10.803,"y":9.933,"a":-55.7,"st":"Carnaby Street","np":7,"db":134},{"x":16.07,"y":14.112,"a":25.8,"st":"St Anns Court","np":3,"db":224},{"x":10.383,"y":10.568,"a":35.9,"st":"Carnaby Court","np":6,"db":131},{"x":13.685,"y":8.985,"a":-54.4,"st":"Great Pulteney Street","np":8,"db":157},{"x":15.805,"y":13.928,"a":25.9,"st":"St Anns Court","np":6,"db":207},{"x":12.173,"y":11.809,"a":-154.0,"st":"Broad Street","np":6,"db":22},{"x":11.496,"y":10.735,"a":-61.4,"st":"Marshall Street","np":6,"db":78},{"x":15.406,"y":11.193,"a":-57.5,"st":"Berwick Street","np":9,"db":153},{"x":15.911,"y":12.207,"a":-67.1,"st":"Wardour Street","np":9,"db":179},{"x":10.188,"y":11.918,"a":-56.9,"st":"West Street","np":5,"db":127},{"x":14.0,"y":12.775,"a":27.6,"st":"Broad Street","np":6,"db":94},{"x":16.547,"y":11.393,"a":35.4,"st":"Meards Court/Street","np":9,"db":211},{"x":17.515,"y":11.229,"a":36.6,"st":"Little Dean Street","np":10,"db":263},{"x":13.778,"y":8.865,"a":-54.4,"st":"Great Pulteney Street","np":8,"db":165},{"x":14.111,"y":10.56,"a":116.7,"st":"New Street/Husband Street","np":6,"db":102},{"x":14.686,"y":11.456,"a":-58.8,"st":"Hopkins Street","np":6,"db":113},{"x":12.574,"y":13.439,"a":-66.8,"st":"Poland Street","np":6,"db":91},{"x":11.706,"y":10.365,"a":-56.0,"st":"Marshall Street","np":6,"db":86},{"x":14.369,"y":12.55,"a":-59.6,"st":"Berwick Street","np":6,"db":105},{"x":15.213,"y":16.959,"a":109.0,"st":"Great Chapel Street","np":3,"db":311},{"x":15.816,"y":13.898,"a":25.9,"st":"St Anns Court","np":6,"db":207},{"x":13.896,"y":12.721,"a":27.6,"st":"Broad Street","np":6,"db":88},{"x":15.183,"y":11.589,"a":-59.8,"st":"Berwick Street","np":6,"db":139},{"x":13.171,"y":12.932,"a":-151.3,"st":"Bentinck Street","np":6,"db":71},{"x":12.57,"y":11.512,"a":-66.9,"st":"Cambridge Street","np":6,"db":11},{"x":15.139,"y":13.202,"a":29.8,"st":"Edward Street","np":6,"db":157},{"x":12.536,"y":11.581,"a":-154.0,"st":"Broad Street","np":6,"db":8},{"x":13.554,"y":13.175,"a":27.4,"st":"Bentinck Street","np":6,"db":93},{"x":14.029,"y":13.075,"a":116.1,"st":"Berwick Street","np":6,"db":105},{"x":15.44,"y":13.278,"a":-53.6,"st":"Wardour Street","np":6,"db":173},{"x":14.846,"y":14.869,"a":25.0,"st":"Little Chapel Street","np":2,"db":206},{"x":10.277,"y":11.367,"a":-61.0,"st":"Marlborough Row","np":5,"db":123},{"x":10.53,"y":11.629,"a":33.5,"st":"South Row","np":5,"db":108},{"x":9.933,"y":12.306,"a":-56.7,"st":"West Street","np":5,"db":143},{"x":14.16,"y":9.239,"a":-53.2,"st":"Little Windmill Street","np":8,"db":156},{"x":13.618,"y":12.549,"a":28.1,"st":"Broad Street","np":6,"db":71},{"x":14.956,"y":9.84,"a":-144.0,"st":"Pulteney Court (II)","np":9,"db":161},{"x":15.694,"y":12.381,"a":-67.1,"st":"Wardour Street","np":6,"db":169},{"x":9.2,"y":11.972,"a":-57.5,"st":"Carnaby Street","np":5,"db":179},{"x":16.83,"y":11.394,"a":35.4,"st":"Meards Court/Street","np":9,"db":226},{"x":13.315,"y":10.315,"a":-55.8,"st":"Little Windmill Street","np":6,"db":85},{"x":10.563,"y":11.582,"a":33.5,"st":"South Row","np":6,"db":107},{"x":8.311,"y":7.203,"a":34.8,"st":"Heddon Court","np":12,"db":329},{"x":13.393,"y":13.038,"a":-151.3,"st":"Bentinck Street","np":6,"db":82},{"x":14.518,"y":8.716,"a":43.9,"st":"Brewer Street","np":8,"db":190},{"x":16.809,"y":11.427,"a":35.4,"st":"Meards Court/Street","np":9,"db":225},{"x":14.711,"y":11.918,"a":-59.8,"st":"Berwick Street","np":6,"db":114},{"x":10.314,"y":11.386,"a":-61.0,"st":"Marlborough Row","np":5,"db":121},{"x":13.157,"y":11.152,"a":-63.0,"st":"Cambridge Street","np":6,"db":44},{"x":9.084,"y":13.216,"a":-86.6,"st":"Carnaby Street","np":5,"db":201},{"x":15.19,"y":9.975,"a":-144.0,"st":"Pulteney Court (II)","np":9,"db":167},{"x":8.436,"y":7.394,"a":34.8,"st":"Heddon Court","np":7,"db":317},{"x":15.348,"y":9.82,"a":-55.5,"st":"Greens Court","np":9,"db":179},{"x":13.313,"y":12.379,"a":28.1,"st":"Broad Street","np":6,"db":52},{"x":13.232,"y":9.732,"a":-61.3,"st":"Great Pulteney Street","np":8,"db":111},{"x":12.553,"y":11.547,"a":-66.9,"st":"Cambridge Street","np":6,"db":10},{"x":13.891,"y":10.953,"a":116.7,"st":"New Street/Husband Street","np":6,"db":81},{"x":13.493,"y":12.514,"a":28.1,"st":"Broad Street","np":6,"db":64},{"x":15.248,"y":16.973,"a":109.0,"st":"Great Chapel Street","np":3,"db":312},{"x":11.588,"y":11.093,"a":-152.9,"st":"Broad Street","np":6,"db":62},{"x":9.443,"y":10.767,"a":38.8,"st":"Cross Street","np":5,"db":173},{"x":11.364,"y":9.603,"a":-143.4,"st":"Silver Street","np":7,"db":129},{"x":11.157,"y":14.775,"a":23.3,"st":"Great Marlborough Street","np":4,"db":178},{"x":11.897,"y":10.23,"a":33.7,"st":"Silver Street","np":6,"db":87},{"x":15.013,"y":10.215,"a":-148.4,"st":"Peter Street","np":9,"db":152},{"x":13.61,"y":11.495,"a":116.7,"st":"New Street","np":6,"db":56},{"x":14.107,"y":13.603,"a":118.0,"st":"Berwick Street","np":6,"db":128},{"x":10.463,"y":11.21,"a":-61.0,"st":"Marlborough Row","np":6,"db":115},{"x":10.308,"y":9.463,"a":127.3,"st":"Naylors Yard","np":7,"db":170},{"x":13.779,"y":12.696,"a":28.1,"st":"Broad Street","np":6,"db":82},{"x":13.413,"y":12.428,"a":28.1,"st":"Broad Street","np":6,"db":58},{"x":12.563,"y":11.046,"a":-62.3,"st":"Tent Court","np":6,"db":36},{"x":15.662,"y":13.936,"a":25.9,"st":"St Anns Court","np":6,"db":201},{"x":13.835,"y":8.909,"a":-54.4,"st":"Great Pulteney Street","np":8,"db":164},{"x":13.227,"y":12.339,"a":28.1,"st":"Broad Street","np":6,"db":48},{"x":15.119,"y":10.067,"a":-144.0,"st":"Pulteney Court (II)","np":9,"db":161},{"x":13.246,"y":10.514,"a":-55.8,"st":"Little Windmill Street","np":6,"db":74},{"x":14.627,"y":11.421,"a":-58.8,"st":"Hopkins Street","np":6,"db":110},{"x":14.389,"y":10.293,"a":119.5,"st":"William and Mary Yard","np":9,"db":123},{"x":15.022,"y":14.112,"a":-63.0,"st":"Wardour Street","np":6,"db":181},{"x":13.148,"y":10.595,"a":-55.8,"st":"Little Windmill Street","np":6,"db":67},{"x":13.39,"y":8.816,"a":-54.4,"st":"Great Pulteney Street","np":8,"db":160},{"x":11.773,"y":9.525,"a":124.3,"st":"Upper James Street","np":6,"db":124},{"x":16.041,"y":14.354,"a":25.8,"st":"St Anns Court","np":3,"db":231},{"x":10.626,"y":10.93,"a":-61.0,"st":"Marlborough Row","np":6,"db":111},{"x":14.56,"y":10.6,"a":-150.8,"st":"New Street/Husband Street","np":6,"db":121},{"x":9.327,"y":12.168,"a":-57.5,"st":"Carnaby Street","np":5,"db":174},{"x":14.508,"y":11.5,"a":-58.8,"st":"Hopkins Street","np":6,"db":103},{"x":10.525,"y":12.318,"a":-65.8,"st":"Marshall Street","np":5,"db":113},{"x":13.986,"y":12.801,"a":27.6,"st":"Broad Street","np":6,"db":94},{"x":10.55,"y":11.602,"a":33.5,"st":"South Row","np":6,"db":107},{"x":10.648,"y":11.707,"a":33.5,"st":"South Row","np":6,"db":102},{"x":15.735,"y":6.09,"a":8.5,"st":"Angel Court","np":11,"db":343},{"x":11.802,"y":11.16,"a":-152.9,"st":"Broad Street","np":6,"db":51},{"x":11.768,"y":10.269,"a":-56.0,"st":"Marshall Street","np":6,"db":88},{"x":11.574,"y":11.129,"a":-152.9,"st":"Broad Street","np":6,"db":62},{"x":15.762,"y":14.02,"a":-61.4,"st":"St Anns Place","np":3,"db":208},{"x":10.659,"y":11.679,"a":33.5,"st":"South Row","np":6,"db":101},{"x":13.406,"y":13.285,"a":-61.6,"st":"Portland Mews","np":6,"db":94},{"x":11.248,"y":11.452,"a":-65.7,"st":"Marshall Street","np":6,"db":72},{"x":15.537,"y":12.761,"a":-67.1,"st":"Wardour Street","np":6,"db":166},{"x":14.024,"y":10.708,"a":116.7,"st":"New Street/Husband Street","np":6,"db":94},{"x":13.399,"y":12.457,"a":28.1,"st":"Broad Street","np":6,"db":58},{"x":14.578,"y":16.189,"a":25.5,"st":"Hollen Street","np":3,"db":259},{"x":15.326,"y":13.433,"a":-63.1,"st":"Wardour Street","np":6,"db":172},{"x":14.473,"y":8.778,"a":-50.8,"st":"Little Windmill Street","np":8,"db":186},{"x":11.4,"y":9.888,"a":-143.4,"st":"Silver Street","np":6,"db":116},{"x":12.487,"y":11.177,"a":-62.3,"st":"Tent Court","np":6,"db":29},{"x":13.781,"y":11.161,"a":30.5,"st":"Pulteney Court (I)","np":6,"db":71},{"x":10.568,"y":11.028,"a":-61.0,"st":"Marlborough Row","np":6,"db":112},{"x":10.536,"y":11.01,"a":-61.0,"st":"Marlborough Row","np":6,"db":114},{"x":14.76,"y":10.752,"a":-150.8,"st":"New Street/Husband Street","np":9,"db":127},{"x":14.232,"y":12.041,"a":28.5,"st":"Kemps Court","np":6,"db":90},{"x":13.347,"y":11.976,"a":116.7,"st":"New Street","np":6,"db":43},{"x":10.439,"y":11.807,"a":33.5,"st":"South Row","np":5,"db":113},{"x":12.519,"y":10.582,"a":30.5,"st":"Silver Street","np":6,"db":61},{"x":15.0,"y":11.993,"a":-59.8,"st":"Berwick Street","np":6,"db":129},{"x":10.645,"y":9.883,"a":-55.7,"st":"Carnaby Street","np":7,"db":141},{"x":13.125,"y":11.132,"a":-63.0,"st":"Cambridge Street","np":6,"db":43},{"x":10.087,"y":11.47,"a":37.1,"st":"Cross Street","np":5,"db":132},{"x":11.215,"y":11.436,"a":-65.7,"st":"Marshall Street","np":6,"db":74},{"x":12.91,"y":11.737,"a":-155.9,"st":"Broad Street","np":6,"db":18},{"x":12.173,"y":9.966,"a":-62.8,"st":"Bridle Street","np":6,"db":96},{"x":12.441,"y":11.281,"a":-154.0,"st":"Broad Street","np":6,"db":25},{"x":11.917,"y":10.202,"a":33.7,"st":"Silver Street","np":6,"db":88},{"x":11.472,"y":11.384,"a":-152.9,"st":"Broad Street","np":6,"db":61},{"x":11.653,"y":13.57,"a":28.0,"st":"St James Workhouse","np":6,"db":109},{"x":12.456,"y":11.509,"a":-154.0,"st":"Broad Street","np":6,"db":13},{"x":14.779,"y":12.313,"a":-59.6,"st":"Berwick Street","np":6,"db":121},{"x":14.018,"y":12.749,"a":27.6,"st":"Broad Street","np":6,"db":94},{"x":12.504,"y":13.399,"a":-66.8,"st":"Poland Street","np":6,"db":89},{"x":9.218,"y":12.333,"a":-57.5,"st":"Carnaby Street","np":5,"db":181},{"x":10.397,"y":11.306,"a":-61.0,"st":"Marlborough Row","np":5,"db":117},{"x":12.746,"y":9.155,"a":-62.8,"st":"Bridle Street","np":8,"db":137},{"x":9.106,"y":6.344,"a":-150.4,"st":"Leicester Street (I)","np":12,"db":339},{"x":8.343,"y":7.137,"a":34.8,"st":"Heddon Court","np":12,"db":331},{"x":15.317,"y":13.568,"a":-63.1,"st":"Wardour Street","np":6,"db":175},{"x":11.183,"y":11.418,"a":-65.7,"st":"Marshall Street","np":6,"db":75},{"x":11.787,"y":11.192,"a":-152.9,"st":"Broad Street","np":6,"db":50},{"x":12.713,"y":11.301,"a":-63.0,"st":"Cambridge Street","np":6,"db":24},{"x":11.766,"y":11.23,"a":-152.9,"st":"Broad Street","np":6,"db":50},{"x":12.179,"y":13.635,"a":-66.8,"st":"Poland Street","np":6,"db":103},{"x":12.331,"y":14.803,"a":-152.9,"st":"Noel Street","np":2,"db":164},{"x":13.623,"y":13.388,"a":27.4,"st":"Bentinck Street","np":6,"db":104},{"x":8.813,"y":15.134,"a":-155.7,"st":"Marlborough Mews","np":4,"db":269},{"x":12.223,"y":11.338,"a":-154.0,"st":"Broad Street","np":6,"db":28},{"x":16.185,"y":14.291,"a":25.8,"st":"St Anns Court","np":3,"db":235},{"x":12.845,"y":11.61,"a":-66.9,"st":"Cambridge Street","np":6,"db":16},{"x":13.61,"y":13.428,"a":27.4,"st":"Bentinck Street","np":6,"db":106},{"x":12.694,"y":10.215,"a":-61.3,"st":"Great Pulteney Street","np":6,"db":80},{"x":15.025,"y":11.855,"a":-59.8,"st":"Berwick Street","np":6,"db":130},{"x":13.913,"y":12.693,"a":27.6,"st":"Broad Street","np":6,"db":88},{"x":13.608,"y":9.075,"a":-54.4,"st":"Great Pulteney Street","np":8,"db":151},{"x":12.472,"y":13.011,"a":-66.8,"st":"Poland Street","np":6,"db":68},{"x":9.871,"y":12.404,"a":-55.0,"st":"West Street","np":5,"db":148},{"x":17.595,"y":7.336,"a":-62.6,"st":"Rupert Street","np":9,"db":354},{"x":11.103,"y":11.112,"a":-65.7,"st":"Marshall Street","np":6,"db":84},{"x":16.662,"y":14.404,"a":25.8,"st":"St Anns Court","np":3,"db":259},{"x":9.693,"y":11.01,"a":38.8,"st":"Cross Street","np":5,"db":157},{"x":13.404,"y":13.004,"a":-151.3,"st":"Bentinck Street","np":6,"db":81},{"x":13.128,"y":10.581,"a":-55.8,"st":"Little Windmill Street","np":6,"db":68},{"x":13.741,"y":10.078,"a":-55.8,"st":"Little Windmill Street","np":6,"db":107},{"x":11.678,"y":11.129,"a":-152.9,"st":"Broad Street","np":6,"db":57},{"x":13.145,"y":11.819,"a":28.1,"st":"Broad Street","np":6,"db":31},{"x":13.124,"y":11.849,"a":28.1,"st":"Broad Street","np":6,"db":30},{"x":12.298,"y":11.88,"a":-154.0,"st":"Broad Street","np":6,"db":17},{"x":14.904,"y":12.763,"a":-65.2,"st":"Duck Lane/Ham Square","np":6,"db":135},{"x":11.537,"y":12.588,"a":31.0,"st":"Dufours Place","np":6,"db":71},{"x":12.873,"y":11.624,"a":-66.9,"st":"Cambridge Street","np":6,"db":17},{"x":11.046,"y":11.232,"a":-65.7,"st":"Marshall Street","np":6,"db":85},{"x":15.776,"y":13.988,"a":25.9,"st":"St Anns Court","np":6,"db":208},{"x":12.9,"y":10.339,"a":-61.3,"st":"Great Pulteney Street","np":6,"db":76},{"x":12.316,"y":11.512,"a":-154.0,"st":"Broad Street","np":6,"db":18},{"x":9.794,"y":11.772,"a":-146.3,"st":"Marlborough Court","np":5,"db":147},{"x":12.653,"y":11.264,"a":-63.0,"st":"Cambridge Street","np":6,"db":25},{"x":12.678,"y":12.055,"a":-155.9,"st":"Broad Street","np":6,"db":18},{"x":15.96,"y":9.162,"a":-135.0,"st":"Great Crown Court","np":9,"db":225},{"x":11.031,"y":11.88,"a":-65.7,"st":"Marshall Street","np":6,"db":82},{"x":14.089,"y":9.338,"a":-53.2,"st":"Little Windmill Street","np":8,"db":150},{"x":11.027,"y":11.746,"a":-65.7,"st":"Marshall Street","np":6,"db":82},{"x":14.542,"y":8.685,"a":43.9,"st":"Brewer Street","np":8,"db":192},{"x":15.551,"y":11.28,"a":28.1,"st":"Tylers Court","np":9,"db":160},{"x":9.579,"y":11.781,"a":-57.6,"st":"Carnaby Street","np":5,"db":159},{"x":15.466,"y":11.097,"a":-61.9,"st":"Berwick Street","np":9,"db":157},{"x":14.442,"y":12.16,"a":28.5,"st":"Kemps Court","np":6,"db":102},{"x":11.383,"y":9.91,"a":-143.4,"st":"Silver Street","np":6,"db":115},{"x":13.741,"y":11.312,"a":30.5,"st":"Pulteney Court (I)","np":6,"db":66},{"x":11.391,"y":11.034,"a":-61.4,"st":"Marshall Street","np":6,"db":73},{"x":16.016,"y":9.072,"a":-135.0,"st":"Great Crown Court","np":9,"db":230},{"x":9.922,"y":11.863,"a":-146.3,"st":"Marlborough Court","np":5,"db":141},{"x":10.802,"y":9.687,"a":-55.7,"st":"Carnaby Street","np":7,"db":143},{"x":12.633,"y":11.623,"a":-66.9,"st":"Cambridge Street","np":6,"db":6},{"x":9.262,"y":10.663,"a":38.3,"st":"Cross Street","np":5,"db":184},{"x":13.785,"y":13.816,"a":118.0,"st":"Berwick Street","np":6,"db":128},{"x":13.757,"y":13.796,"a":118.0,"st":"Berwick Street","np":6,"db":126},{"x":14.708,"y":9.97,"a":-148.4,"st":"Peter Street","np":9,"db":147},{"x":15.292,"y":10.05,"a":-55.5,"st":"Greens Court","np":9,"db":169},{"x":14.147,"y":12.423,"a":27.6,"st":"Broad Street","np":6,"db":91},{"x":13.768,"y":10.094,"a":-55.8,"st":"Little Windmill Street","np":6,"db":107},{"x":10.973,"y":11.345,"a":-65.7,"st":"Marshall Street","np":6,"db":87},{"x":12.365,"y":10.484,"a":-62.3,"st":"Tent Court","np":6,"db":67},{"x":14.816,"y":10.042,"a":-148.4,"st":"Peter Street","np":9,"db":149},{"x":15.05,"y":13.614,"a":-63.0,"st":"Wardour Street","np":6,"db":165},{"x":15.362,"y":13.455,"a":-63.1,"st":"Wardour Street","np":6,"db":174},{"x":12.793,"y":14.312,"a":26.8,"st":"Portland Street","np":6,"db":138},{"x":11.324,"y":9.795,"a":-143.4,"st":"Silver Street","np":6,"db":122},{"x":10.451,"y":11.777,"a":33.5,"st":"South Row","np":5,"db":112},{"x":11.013,"y":11.211,"a":-65.7,"st":"Marshall Street","np":6,"db":87},{"x":13.383,"y":9.456,"a":-61.3,"st":"Great Pulteney Street","np":8,"db":128},{"x":10.339,"y":11.396,"a":-61.0,"st":"Marlborough Row","np":5,"db":120},{"x":9.611,"y":11.807,"a":-146.3,"st":"Marlborough Court","np":5,"db":157},{"x":14.547,"y":12.273,"a":28.5,"st":"Kemps Court","np":6,"db":109},{"x":11.451,"y":11.418,"a":-152.9,"st":"Broad Street","np":6,"db":62},{"x":12.74,"y":10.739,"a":30.7,"st":"Silver Street","np":6,"db":53},{"x":14.96,"y":11.969,"a":-59.8,"st":"Berwick Street","np":6,"db":127},{"x":12.317,"y":14.832,"a":-152.9,"st":"Noel Street","np":2,"db":165},{"x":12.883,"y":10.784,"a":30.7,"st":"Silver Street","np":6,"db":53},{"x":15.27,"y":9.14,"a":40.3,"st":"Little Pulteney Street","np":9,"db":198},{"x":15.775,"y":9.567,"a":36.3,"st":"Little Pulteney Street","np":9,"db":205},{"x":13.064,"y":13.85,"a":25.8,"st":"Portland Mews","np":6,"db":116},{"x":12.929,"y":11.706,"a":-66.9,"st":"Cambridge Street","np":6,"db":19},{"x":15.284,"y":12.108,"a":-65.2,"st":"Duck Lane/Ham Square","np":6,"db":145},{"x":13.019,"y":11.79,"a":-155.9,"st":"Broad Street","np":6,"db":24},{"x":12.459,"y":11.249,"a":-63.0,"st":"Cambridge Street","np":6,"db":26},{"x":15.769,"y":12.954,"a":-67.1,"st":"Wardour Street","np":6,"db":182},{"x":14.03,"y":13.356,"a":116.1,"st":"Berwick Street","np":6,"db":116},{"x":12.981,"y":14.373,"a":26.8,"st":"Portland Street","np":6,"db":142},{"x":13.882,"y":14.635,"a":27.3,"st":"Portland Street","np":2,"db":169},{"x":10.938,"y":9.725,"a":-55.7,"st":"Carnaby Street","np":7,"db":137},{"x":16.024,"y":14.01,"a":35.4,"st":"St Anns Court","np":3,"db":219},{"x":15.096,"y":10.094,"a":-52.6,"st":"Greens Court","np":9,"db":159},{"x":13.465,"y":12.568,"a":28.1,"st":"Broad Street","np":6,"db":65},{"x":11.585,"y":12.293,"a":115.0,"st":"Dufours Place","np":6,"db":60},{"x":10.699,"y":12.002,"a":-65.8,"st":"Marshall Street","np":6,"db":100},{"x":16.839,"y":11.602,"a":34.0,"st":"Meards Court/Street","np":9,"db":226},{"x":13.906,"y":14.602,"a":-61.9,"st":"Wardour Mews","np":2,"db":168},{"x":13.703,"y":11.113,"a":30.5,"st":"Pulteney Court (I)","np":6,"db":68},{"x":13.289,"y":9.632,"a":-61.3,"st":"Great Pulteney Street","np":8,"db":117},{"x":15.66,"y":12.369,"a":-67.1,"st":"Wardour Street","np":6,"db":167},{"x":15.465,"y":11.227,"a":-57.5,"st":"Berwick Street","np":9,"db":156},{"x":10.991,"y":11.197,"a":-65.7,"st":"Marshall Street","np":6,"db":88},{"x":15.501,"y":11.116,"a":35.7,"st":"Black Lion Court","np":9,"db":159},{"x":11.706,"y":9.638,"a":124.3,"st":"Upper James Street","np":6,"db":120},{"x":12.355,"y":11.443,"a":-154.0,"st":"Broad Street","np":6,"db":19},{"x":11.129,"y":11.53,"a":-65.7,"st":"Marshall Street","np":6,"db":77},{"x":9.596,"y":10.939,"a":38.8,"st":"Cross Street","np":5,"db":163},{"x":8.325,"y":7.167,"a":34.8,"st":"Heddon Court","np":12,"db":330},{"x":14.001,"y":13.34,"a":116.1,"st":"Berwick Street","np":6,"db":114},{"x":13.245,"y":12.998,"a":-151.3,"st":"Bentinck Street","np":6,"db":76},{"x":15.285,"y":9.338,"a":40.6,"st":"Little Pulteney Street","np":9,"db":192},{"x":15.497,"y":11.243,"a":-57.5,"st":"Berwick Street","np":9,"db":157},{"x":15.387,"y":7.33,"a":-50.5,"st":"Ham Yard","np":8,"db":277},{"x":16.058,"y":14.32,"a":25.8,"st":"St Anns Court","np":3,"db":230},{"x":12.385,"y":13.695,"a":-66.8,"st":"Poland Street","np":6,"db":105},{"x":12.189,"y":11.789,"a":-154.0,"st":"Broad Street","np":6,"db":21},{"x":15.123,"y":11.688,"a":-59.8,"st":"Berwick Street","np":6,"db":135},{"x":13.954,"y":12.862,"a":27.6,"st":"Broad Street","np":6,"db":95},{"x":9.618,"y":10.913,"a":38.8,"st":"Cross Street","np":5,"db":162},{"x":16.293,"y":14.338,"a":25.8,"st":"St Anns Court","np":3,"db":241},{"x":12.644,"y":10.648,"a":30.7,"st":"Silver Street","np":6,"db":57},{"x":10.494,"y":12.875,"a":-65.8,"st":"Marshall Street","np":5,"db":126},{"x":13.978,"y":12.833,"a":27.6,"st":"Broad Street","np":6,"db":95},{"x":15.522,"y":11.265,"a":28.1,"st":"Tylers Court","np":9,"db":158},{"x":10.964,"y":11.183,"a":-65.7,"st":"Marshall Street","np":6,"db":90},{"x":13.298,"y":12.916,"a":-151.3,"st":"Bentinck Street","np":6,"db":74},{"x":13.915,"y":13.566,"a":118.0,"st":"Berwick Street","np":6,"db":121},{"x":13.317,"y":9.644,"a":-61.3,"st":"Great Pulteney Street","np":8,"db":117},{"x":12.747,"y":10.713,"a":30.7,"st":"Silver Street","np":6,"db":55},{"x":15.442,"y":11.208,"a":-57.5,"st":"Berwick Street","np":9,"db":155},{"x":15.694,"y":13.879,"a":25.9,"st":"St Anns Court","np":6,"db":201},{"x":13.838,"y":11.056,"a":116.7,"st":"New Street/Husband Street","np":6,"db":76},{"x":11.677,"y":10.476,"a":-56.0,"st":"Marshall Street","np":6,"db":81},{"x":16.073,"y":14.291,"a":25.8,"st":"St Anns Court","np":3,"db":230},{"x":12.595,"y":10.985,"a":-62.3,"st":"Tent Court","np":6,"db":39},{"x":15.357,"y":11.294,"a":28.1,"st":"Tylers Court","np":9,"db":149},{"x":16.284,"y":14.36,"a":25.8,"st":"St Anns Court","np":3,"db":241},{"x":12.502,"y":12.066,"a":-154.0,"st":"Broad Street","np":6,"db":18},{"x":15.65,"y":12.904,"a":-67.1,"st":"Wardour Street","np":6,"db":175},{"x":11.55,"y":12.564,"a":31.0,"st":"Dufours Place","np":6,"db":70},{"x":14.215,"y":12.068,"a":-61.2,"st":"Hopkins Street","np":6,"db":89},{"x":16.253,"y":10.093,"a":36.9,"st":"Little Pulteney Street","np":9,"db":213},{"x":13.624,"y":11.204,"a":30.5,"st":"Pulteney Court (I)","np":6,"db":62},{"x":12.615,"y":10.355,"a":-61.3,"st":"Great Pulteney Street","np":6,"db":73},{"x":11.657,"y":11.172,"a":-152.9,"st":"Broad Street","np":6,"db":57},{"x":8.771,"y":10.943,"a":-50.9,"st":"King Street (I)","np":5,"db":206},{"x":10.902,"y":14.7,"a":23.3,"st":"Great Marlborough Street","np":4,"db":181},{"x":11.617,"y":11.054,"a":-152.9,"st":"Broad Street","np":6,"db":62},{"x":13.039,"y":11.241,"a":-63.0,"st":"Cambridge Street","np":6,"db":36},{"x":13.707,"y":11.296,"a":30.5,"st":"Pulteney Court (I)","np":6,"db":64},{"x":11.062,"y":11.757,"a":-65.7,"st":"Marshall Street","np":6,"db":80},{"x":14.572,"y":12.291,"a":-59.6,"st":"Berwick Street","np":6,"db":110},{"x":10.437,"y":11.564,"a":33.5,"st":"South Row","np":5,"db":113},{"x":13.138,"y":12.284,"a":28.1,"st":"Broad Street","np":6,"db":42},{"x":11.88,"y":14.162,"a":-66.8,"st":"Poland Street","np":6,"db":134},{"x":13.339,"y":10.338,"a":-55.8,"st":"Little Windmill Street","np":6,"db":84},{"x":9.855,"y":12.176,"a":-56.7,"st":"West Street","np":5,"db":146},{"x":12.744,"y":12.847,"a":-66.8,"st":"Poland Street","np":6,"db":60},{"x":9.286,"y":10.631,"a":38.3,"st":"Cross Street","np":5,"db":184},{"x":11.591,"y":9.539,"a":124.3,"st":"Upper James Street","np":7,"db":127},{"x":13.12,"y":12.316,"a":28.1,"st":"Broad Street","np":6,"db":43},{"x":11.409,"y":10.997,"a":-61.4,"st":"Marshall Street","np":6,"db":73},{"x":13.639,"y":11.508,"a":116.7,"st":"New Street","np":6,"db":58},{"x":11.766,"y":13.612,"a":28.0,"st":"St James Workhouse","np":6,"db":109},{"x":16.268,"y":14.382,"a":25.8,"st":"St Anns Court","np":3,"db":241},{"x":8.736,"y":12.052,"a":36.3,"st":"Tyler Street","np":5,"db":204},{"x":15.749,"y":12.161,"a":27.1,"st":"Duck Lane/Ham Square","np":9,"db":170},{"x":12.186,"y":11.402,"a":-154.0,"st":"Broad Street","np":6,"db":27},{"x":14.786,"y":14.094,"a":-63.0,"st":"Wardour Street","np":6,"db":172},{"x":13.451,"y":8.861,"a":-54.4,"st":"Great Pulteney Street","np":8,"db":159},{"x":15.737,"y":12.941,"a":-67.1,"st":"Wardour Street","np":6,"db":180},{"x":11.912,"y":14.172,"a":-66.8,"st":"Poland Street","np":6,"db":134},{"x":12.527,"y":12.785,"a":-66.8,"st":"Poland Street","np":6,"db":56},{"x":14.374,"y":13.077,"a":116.1,"st":"Berwick Street","np":6,"db":119},{"x":12.217,"y":14.141,"a":-66.8,"st":"Poland Street","np":6,"db":129},{"x":15.28,"y":11.422,"a":-59.8,"st":"Berwick Street","np":9,"db":144},{"x":11.539,"y":10.755,"a":-61.4,"st":"Marshall Street","np":6,"db":75},{"x":9.047,"y":11.207,"a":124.4,"st":"George Place (?)","np":5,"db":189},{"x":10.753,"y":8.844,"a":124.3,"st":"Upper John Street","np":7,"db":181},{"x":14.946,"y":10.105,"a":-148.4,"st":"Peter Street","np":9,"db":152},{"x":13.227,"y":11.91,"a":28.1,"st":"Broad Street","np":6,"db":36},{"x":13.416,"y":8.835,"a":-54.4,"st":"Great Pulteney Street","np":8,"db":160},{"x":14.358,"y":12.037,"a":28.5,"st":"Kemps Court","np":6,"db":96},{"x":12.204,"y":11.37,"a":-154.0,"st":"Broad Street","np":6,"db":27},{"x":12.003,"y":14.569,"a":-66.8,"st":"Poland Street","np":6,"db":154},{"x":13.587,"y":11.605,"a":116.7,"st":"New Street","np":6,"db":54},{"x":8.757,"y":12.023,"a":36.3,"st":"Tyler Street","np":5,"db":203},{"x":13.389,"y":10.971,"a":30.5,"st":"Pulteney Court (I)","np":6,"db":59},{"x":12.57,"y":12.798,"a":-66.8,"st":"Poland Street","np":6,"db":57},{"x":15.563,"y":14.175,"a":27.7,"st":"St Anns Place","np":3,"db":205},{"x":12.521,"y":12.032,"a":-154.0,"st":"Broad Street","np":6,"db":16},{"x":12.409,"y":11.35,"a":-154.0,"st":"Broad Street","np":6,"db":22},{"x":12.369,"y":11.416,"a":-154.0,"st":"Broad Street","np":6,"db":20},{"x":13.449,"y":12.601,"a":28.1,"st":"Broad Street","np":6,"db":66},{"x":12.033,"y":11.369,"a":-152.9,"st":"Broad Street","np":6,"db":34},{"x":9.945,"y":11.839,"a":-146.3,"st":"Marlborough Court","np":5,"db":139},{"x":12.143,"y":13.632,"a":-66.8,"st":"Poland Street","np":6,"db":103},{"x":14.406,"y":13.096,"a":116.1,"st":"Berwick Street","np":6,"db":121},{"x":15.706,"y":12.927,"a":-67.1,"st":"Wardour Street","np":6,"db":178},{"x":13.759,"y":11.142,"a":30.5,"st":"Pulteney Court (I)","np":6,"db":70},{"x":11.445,"y":10.931,"a":-61.4,"st":"Marshall Street","np":6,"db":73},{"x":13.796,"y":14.169,"a":118.0,"st":"Berwick Street","np":6,"db":145},{"x":15.577,"y":11.304,"a":28.1,"st":"Tylers Court","np":9,"db":161},{"x":14.994,"y":10.245,"a":-148.4,"st":"Peter Street","np":9,"db":151},{"x":14.113,"y":13.12,"a":116.1,"st":"Berwick Street","np":6,"db":110},{"x":13.174,"y":9.836,"a":-61.3,"st":"Great Pulteney Street","np":8,"db":105},{"x":13.261,"y":12.966,"a":-151.3,"st":"Bentinck Street","np":6,"db":75},{"x":10.933,"y":12.032,"a":-65.8,"st":"Marshall Street","np":6,"db":88},{"x":12.147,"y":9.952,"a":-62.8,"st":"Bridle Street","np":6,"db":97},{"x":13.957,"y":13.883,"a":118.0,"st":"Berwick Street","np":6,"db":136},{"x":11.264,"y":10.802,"a":-61.4,"st":"Marshall Street","np":6,"db":85},{"x":13.426,"y":12.968,"a":-151.3,"st":"Bentinck Street","np":6,"db":80},{"x":13.515,"y":12.488,"a":28.1,"st":"Broad Street","np":6,"db":64},{"x":14.769,"y":11.958,"a":-59.8,"st":"Berwick Street","np":6,"db":117},{"x":12.973,"y":10.95,"a":-63.0,"st":"Cambridge Street","np":6,"db":46},{"x":12.426,"y":11.318,"a":-154.0,"st":"Broad Street","np":6,"db":23},{"x":12.348,"y":14.776,"a":-152.9,"st":"Noel Street","np":2,"db":162},{"x":13.105,"y":12.351,"a":-66.8,"st":"Poland Street","np":6,"db":44},{"x":14.779,"y":13.2,"a":29.8,"st":"Edward Street","np":6,"db":141},{"x":9.813,"y":12.502,"a":-55.0,"st":"West Street","np":5,"db":152},{"x":14.144,"y":10.574,"a":116.7,"st":"New Street/Husband Street","np":6,"db":103},{"x":12.035,"y":14.585,"a":-66.8,"st":"Poland Street","np":6,"db":154},{"x":16.099,"y":14.237,"a":25.8,"st":"St Anns Court","np":3,"db":229},{"x":12.683,"y":11.284,"a":-63.0,"st":"Cambridge Street","np":6,"db":24},{"x":14.695,"y":10.127,"a":-148.4,"st":"Peter Street","np":9,"db":141},{"x":8.84,"y":12.134,"a":36.3,"st":"Tyler Street","np":5,"db":199},{"x":10.547,"y":12.327,"a":-65.8,"st":"Marshall Street","np":5,"db":112},{"x":12.249,"y":14.158,"a":-66.8,"st":"Poland Street","np":6,"db":130},{"x":11.736,"y":13.599,"a":28.0,"st":"St James Workhouse","np":6,"db":109},{"x":8.281,"y":11.568,"a":-50.9,"st":"King Street (I)","np":5,"db":228},{"x":12.385,"y":13.218,"a":-66.8,"st":"Poland Street","np":6,"db":80},{"x":16.734,"y":8.448,"a":-146.3,"st":"Plough Yard","np":9,"db":281},{"x":15.723,"y":7.178,"a":-67.0,"st":"Great Windmill Street","np":11,"db":293},{"x":16.083,"y":14.26,"a":25.8,"st":"St Anns Court","np":3,"db":229},{"x":14.273,"y":10.467,"a":-150.8,"st":"New Street/Husband Street","np":6,"db":112},{"x":9.737,"y":12.359,"a":-55.0,"st":"West Street","np":5,"db":154},{"x":13.28,"y":12.941,"a":-151.3,"st":"Bentinck Street","np":6,"db":75},{"x":16.067,"y":9.97,"a":36.9,"st":"Little Pulteney Street","np":9,"db":207},{"x":14.354,"y":10.352,"a":-150.8,"st":"New Street/Husband Street","np":6,"db":119},{"x":13.405,"y":10.941,"a":30.5,"st":"Pulteney Court (I)","np":6,"db":61},{"x":14.52,"y":9.03,"a":-50.8,"st":"Little Windmill Street","np":8,"db":176},{"x":14.572,"y":11.389,"a":-58.8,"st":"Hopkins Street","np":6,"db":108},{"x":13.712,"y":13.944,"a":118.0,"st":"Berwick Street","np":6,"db":132},{"x":16.236,"y":14.199,"a":25.8,"st":"St Anns Court","np":3,"db":234},{"x":16.256,"y":14.416,"a":25.8,"st":"St Anns Court","np":3,"db":242},{"x":12.808,"y":14.283,"a":26.8,"st":"Portland Street","np":6,"db":136},{"x":13.361,"y":11.948,"a":116.7,"st":"New Street","np":6,"db":43},{"x":11.178,"y":8.616,"a":124.3,"st":"Upper John Street","np":7,"db":181},{"x":11.642,"y":12.173,"a":115.0,"st":"Dufours Place","np":6,"db":55},{"x":14.739,"y":11.94,"a":-59.8,"st":"Berwick Street","np":6,"db":115},{"x":9.423,"y":10.794,"a":38.8,"st":"Cross Street","np":5,"db":174},{"x":9.466,"y":10.739,"a":38.8,"st":"Cross Street","np":5,"db":173},{"x":15.711,"y":11.608,"a":27.6,"st":"Tylers Court","np":9,"db":167},{"x":14.262,"y":12.491,"a":27.6,"st":"Broad Street","np":6,"db":98},{"x":14.188,"y":13.433,"a":116.1,"st":"Berwick Street","np":6,"db":125},{"x":11.484,"y":10.419,"a":-61.4,"st":"Marshall Street","np":6,"db":90},{"x":15.029,"y":10.362,"a":-53.3,"st":"Hopkins Street","np":9,"db":149},{"x":13.087,"y":12.379,"a":-66.8,"st":"Poland Street","np":6,"db":44},{"x":10.958,"y":12.043,"a":-65.8,"st":"Marshall Street","np":6,"db":87},{"x":11.939,"y":14.175,"a":-66.8,"st":"Poland Street","np":6,"db":134},{"x":13.482,"y":8.887,"a":-54.4,"st":"Great Pulteney Street","np":8,"db":158},{"x":14.063,"y":13.09,"a":116.1,"st":"Berwick Street","np":6,"db":107},{"x":10.947,"y":16.486,"a":-75.9,"st":"Norris's Place","np":1,"db":266},{"x":14.205,"y":9.438,"a":-53.2,"st":"Little Windmill Street","np":8,"db":149},{"x":10.384,"y":11.159,"a":-61.0,"st":"Marlborough Row","np":5,"db":120},{"x":15.605,"y":11.315,"a":28.1,"st":"Tylers Court","np":9,"db":162},{"x":11.273,"y":11.461,"a":-65.7,"st":"Marshall Street","np":6,"db":70},{"x":13.022,"y":9.61,"a":-61.3,"st":"Great Pulteney Street","np":8,"db":115},{"x":13.579,"y":13.142,"a":27.4,"st":"Bentinck Street","np":6,"db":92},{"x":11.076,"y":11.642,"a":-65.7,"st":"Marshall Street","np":6,"db":79},{"x":14.597,"y":11.404,"a":-58.8,"st":"Hopkins Street","np":6,"db":109},{"x":15.246,"y":8.63,"a":-141.1,"st":"Queens Head Court","np":9,"db":217},{"x":13.365,"y":10.364,"a":-55.8,"st":"Little Windmill Street","np":6,"db":84},{"x":16.144,"y":10.905,"a":35.9,"st":"Peter Street","np":9,"db":194},{"x":14.299,"y":10.432,"a":-150.8,"st":"New Street/Husband Street","np":6,"db":114},{"x":16.412,"y":14.397,"a":25.8,"st":"St Anns Court","np":3,"db":248},{"x":12.591,"y":14.978,"a":-152.9,"st":"Noel Street","np":2,"db":172},{"x":13.255,"y":10.819,"a":30.5,"st":"Pulteney Court (I)","np":6,"db":60},{"x":10.993,"y":12.062,"a":-65.8,"st":"Marshall Street","np":6,"db":86},{"x":10.102,"y":10.65,"a":-55.6,"st":"Carnaby Street","np":5,"db":143},{"x":15.621,"y":12.556,"a":-67.1,"st":"Wardour Street","np":6,"db":168},{"x":14.216,"y":13.445,"a":116.1,"st":"Berwick Street","np":6,"db":126},{"x":13.369,"y":12.516,"a":28.1,"st":"Broad Street","np":6,"db":59},{"x":10.778,"y":11.648,"a":-65.7,"st":"Marshall Street","np":6,"db":95},{"x":13.178,"y":10.612,"a":-55.8,"st":"Little Windmill Street","np":6,"db":67},{"x":13.806,"y":12.638,"a":28.1,"st":"Broad Street","np":6,"db":81},{"x":11.424,"y":10.968,"a":-61.4,"st":"Marshall Street","np":6,"db":73},{"x":12.918,"y":9.794,"a":-61.3,"st":"Great Pulteney Street","np":8,"db":104},{"x":13.608,"y":11.072,"a":30.5,"st":"Pulteney Court (I)","np":6,"db":65},{"x":13.338,"y":14.331,"a":26.8,"st":"Portland Street","np":6,"db":144},{"x":12.169,"y":11.437,"a":-154.0,"st":"Broad Street","np":6,"db":26},{"x":14.367,"y":10.326,"a":-150.8,"st":"New Street/Husband Street","np":6,"db":121},{"x":8.864,"y":12.108,"a":36.3,"st":"Tyler Street","np":5,"db":198},{"x":15.542,"y":14.21,"a":27.7,"st":"St Anns Place","np":3,"db":205},{"x":14.316,"y":10.407,"a":-150.8,"st":"New Street/Husband Street","np":6,"db":116},{"x":10.028,"y":11.283,"a":37.1,"st":"Cross Street","np":5,"db":137},{"x":13.209,"y":14.262,"a":26.8,"st":"Portland Street","np":6,"db":139},{"x":10.485,"y":12.456,"a":-65.8,"st":"Marshall Street","np":5,"db":117},{"x":9.533,"y":10.645,"a":38.8,"st":"Cross Street","np":5,"db":171},{"x":10.434,"y":11.194,"a":-61.0,"st":"Marlborough Row","np":6,"db":117},{"x":10.926,"y":14.624,"a":23.3,"st":"Great Marlborough Street","np":4,"db":177},{"x":13.319,"y":11.024,"a":30.5,"st":"Pulteney Court (I)","np":6,"db":54},{"x":12.615,"y":10.952,"a":30.7,"st":"Silver Street","np":6,"db":41},{"x":13.08,"y":14.201,"a":26.8,"st":"Portland Street","np":6,"db":134},{"x":11.646,"y":10.457,"a":-56.0,"st":"Marshall Street","np":6,"db":83},{"x":13.564,"y":10.072,"a":-55.8,"st":"Little Windmill Street","np":6,"db":102},{"x":13.376,"y":13.067,"a":-151.3,"st":"Bentinck Street","np":6,"db":83},{"x":13.737,"y":11.13,"a":30.5,"st":"Pulteney Court (I)","np":6,"db":69},{"x":10.688,"y":12.459,"a":-65.8,"st":"Marshall Street","np":5,"db":107},{"x":12.188,"y":14.138,"a":-66.8,"st":"Poland Street","np":6,"db":129},{"x":13.969,"y":13.322,"a":27.4,"st":"Bentinck Street","np":6,"db":112},{"x":14.77,"y":9.211,"a":128.8,"st":"William and Mary Yard","np":9,"db":177},{"x":15.083,"y":10.122,"a":-52.6,"st":"Greens Court","np":9,"db":158},{"x":16.237,"y":9.914,"a":36.9,"st":"Little Pulteney Street","np":9,"db":217},{"x":15.314,"y":11.446,"a":28.1,"st":"Tylers Court","np":9,"db":146},{"x":12.55,"y":11.075,"a":-62.3,"st":"Tent Court","np":6,"db":35},{"x":14.657,"y":11.439,"a":-58.8,"st":"Hopkins Street","np":6,"db":112},{"x":12.532,"y":11.105,"a":-62.3,"st":"Tent Court","np":6,"db":33},{"x":10.913,"y":14.671,"a":23.3,"st":"Great Marlborough Street","np":4,"db":179},{"x":15.679,"y":12.914,"a":-67.1,"st":"Wardour Street","np":6,"db":176},{"x":11.653,"y":12.623,"a":31.0,"st":"Dufours Place","np":6,"db":68},{"x":9.501,"y":11.545,"a":-57.6,"st":"Carnaby Street","np":5,"db":163},{"x":13.269,"y":14.8,"a":116.5,"st":"Berwick Street","np":2,"db":167},{"x":13.616,"y":15.328,"a":-146.1,"st":"Noel Street","np":2,"db":199},{"x":13.431,"y":10.263,"a":-55.8,"st":"Little Windmill Street","np":6,"db":90},{"x":13.48,"y":12.539,"a":28.1,"st":"Broad Street","np":6,"db":65},{"x":11.072,"y":11.105,"a":-65.7,"st":"Marshall Street","np":6,"db":86},{"x":12.929,"y":10.933,"a":-63.0,"st":"Cambridge Street","np":6,"db":46},{"x":12.845,"y":16.019,"a":-63.4,"st":"Berwick Street","np":2,"db":228},{"x":15.316,"y":9.794,"a":-55.5,"st":"Greens Court","np":9,"db":178},{"x":12.782,"y":11.342,"a":-63.0,"st":"Cambridge Street","np":6,"db":23},{"x":9.208,"y":11.082,"a":124.4,"st":"George Place (?)","np":5,"db":182},{"x":14.374,"y":12.003,"a":28.5,"st":"Kemps Court","np":6,"db":97},{"x":15.581,"y":10.921,"a":-59.7,"st":"Berwick Street","np":9,"db":165},{"x":10.407,"y":11.178,"a":-61.0,"st":"Marlborough Row","np":5,"db":118},{"x":12.98,"y":10.661,"a":30.7,"st":"Silver Street","np":6,"db":61},{"x":13.249,"y":11.872,"a":28.1,"st":"Broad Street","np":6,"db":37},{"x":10.963,"y":9.746,"a":-55.7,"st":"Carnaby Street","np":7,"db":135},{"x":13.518,"y":11.009,"a":30.5,"st":"Pulteney Court (I)","np":6,"db":63},{"x":9.582,"y":10.583,"a":127.3,"st":"Naylors Yard","np":5,"db":170},{"x":14.537,"y":10.628,"a":-150.8,"st":"New Street/Husband Street","np":6,"db":119},{"x":12.512,"y":11.142,"a":-62.3,"st":"Tent Court","np":6,"db":31},{"x":10.714,"y":12.471,"a":-65.8,"st":"Marshall Street","np":5,"db":106},{"x":13.315,"y":12.877,"a":-151.3,"st":"Bentinck Street","np":6,"db":73},{"x":9.379,"y":10.963,"a":38.8,"st":"Cross Street","np":5,"db":174},{"x":13.379,"y":11.919,"a":116.7,"st":"New Street","np":6,"db":44},{"x":13.522,"y":11.14,"a":30.5,"st":"Pulteney Court (I)","np":6,"db":59},{"x":13.496,"y":11.039,"a":30.5,"st":"Pulteney Court (I)","np":6,"db":61},{"x":13.637,"y":9.099,"a":-54.4,"st":"Great Pulteney Street","np":8,"db":150},{"x":14.264,"y":15.623,"a":117.2,"st":"Wardour Street","np":2,"db":225},{"x":9.557,"y":10.616,"a":127.3,"st":"Naylors Yard","np":5,"db":170},{"x":14.072,"y":15.51,"a":117.2,"st":"Wardour Street","np":2,"db":216},{"x":12.945,"y":13.788,"a":-64.7,"st":"Portland Mews","np":6,"db":111},{"x":15.413,"y":13.808,"a":26.7,"st":"St Anns Court","np":6,"db":187},{"x":13.789,"y":12.662,"a":28.1,"st":"Broad Street","np":6,"db":81},{"x":11.418,"y":9.856,"a":-143.4,"st":"Silver Street","np":6,"db":117},{"x":12.39,"y":11.378,"a":-154.0,"st":"Broad Street","np":6,"db":21},{"x":12.745,"y":11.318,"a":-63.0,"st":"Cambridge Street","np":6,"db":24},{"x":13.585,"y":11.482,"a":116.7,"st":"New Street","np":6,"db":55},{"x":14.089,"y":13.102,"a":116.1,"st":"Berwick Street","np":6,"db":109},{"x":15.067,"y":10.149,"a":-52.6,"st":"Greens Court","np":9,"db":156},{"x":15.278,"y":13.55,"a":-63.1,"st":"Wardour Street","np":6,"db":173},{"x":14.676,"y":10.15,"a":-148.4,"st":"Peter Street","np":9,"db":139},{"x":13.379,"y":12.489,"a":28.1,"st":"Broad Street","np":6,"db":59},{"x":12.277,"y":11.911,"a":-154.0,"st":"Broad Street","np":6,"db":18},{"x":14.333,"y":10.374,"a":-150.8,"st":"New Street/Husband Street","np":6,"db":118},{"x":12.422,"y":11.567,"a":-154.0,"st":"Broad Street","np":6,"db":12},{"x":12.061,"y":10.303,"a":33.7,"st":"Silver Street","np":6,"db":80},{"x":12.438,"y":11.537,"a":-154.0,"st":"Broad Street","np":6,"db":12},{"x":15.051,"y":10.174,"a":-52.6,"st":"Greens Court","np":9,"db":155},{"x":17.272,"y":11.634,"a":20.9,"st":"Meards Court/Street","np":10,"db":249},{"x":12.426,"y":11.914,"a":-154.0,"st":"Broad Street","np":6,"db":13},{"x":15.018,"y":12.516,"a":-65.2,"st":"Duck Lane/Ham Square","np":6,"db":136}],"pumps":[{"x":8.651,"y":17.892,"n":"Market Place"},{"x":10.985,"y":18.518,"n":"Adam and Eve Court"},{"x":13.378,"y":17.395,"n":"Berners Street"},{"x":14.88,"y":17.81,"n":"Newman Street"},{"x":8.695,"y":14.905,"n":"Marlborough Mews"},{"x":8.864,"y":12.754,"n":"Little Marlborough Street"},{"x":12.571,"y":11.727,"n":"Broad Street"},{"x":10.661,"y":7.429,"n":"Warwick Street"},{"x":13.521,"y":7.958,"n":"Bridle Street"},{"x":16.435,"y":9.252,"n":"Rupert Street"},{"x":18.914,"y":9.738,"n":"Dean Street"},{"x":16.005,"y":5.047,"n":"Tichborne Street"},{"x":8.999,"y":5.101,"n":"Vigo Street"}],"cells":[[[10.296,16.422],[3.432,16.322],[3.39,18.4],[9.733,18.523],[10.296,16.422]],[[11.194,15.853],[10.296,16.422],[9.733,18.523],[12.472,18.576],[11.194,15.853]],[[15.052,14.265],[11.792,14.729],[11.194,15.853],[12.472,18.576],[13.852,18.603],[15.052,14.265]],[[15.052,14.265],[13.852,18.603],[19.91,18.72],[19.908,15.279],[16.842,13.746],[16.556,13.694],[15.052,14.265]],[[10.296,16.422],[11.194,15.853],[11.792,14.729],[11.211,14.021],[3.492,13.413],[3.432,16.322],[10.296,16.422]],[[11.211,14.021],[10.16,10.225],[6.169,8.879],[3.586,8.833],[3.492,13.413],[11.211,14.021]],[[11.754,9.517],[10.16,10.225],[11.211,14.021],[11.792,14.729],[15.052,14.265],[16.556,13.694],[14.289,10.156],[11.754,9.517]],[[12.646,4.696],[12.497,4.361],[6.169,8.879],[10.16,10.225],[11.754,9.517],[12.646,4.696]],[[15.596,7.213],[12.646,4.696],[11.754,9.517],[14.289,10.156],[15.596,7.213]],[[16.556,13.694],[16.842,13.746],[18.173,6.95],[15.596,7.213],[14.289,10.156],[16.556,13.694]],[[18.173,6.95],[16.842,13.746],[19.908,15.279],[19.901,5.878],[18.173,6.95]],[[18.173,6.95],[19.901,5.878],[19.9,3.7],[12.49,3.49],[12.497,4.361],[12.646,4.696],[15.596,7.213],[18.173,6.95]],[[6.169,8.879],[12.497,4.361],[12.49,3.49],[3.7,3.24],[3.586,8.833],[6.169,8.879]]],"counts":[0,1,13,24,6,61,358,16,27,64,2,2,4],"workhouse":[[11.2,13.35],[11.55,13.66],[12.05,13.66],[12.3,13.35],[12.38,12.85],[11.8,12.62],[11.2,12.85]],"brewery":[[13.55,12.22],[13.88,12.4],[14.08,12.02],[13.78,11.82]],"daily":[{"d":"08-19","v":1,"a":1},{"d":"08-20","v":0,"a":1},{"d":"08-21","v":2,"a":1},{"d":"08-22","v":0,"a":0},{"d":"08-23","v":0,"a":1},{"d":"08-24","v":2,"a":1},{"d":"08-25","v":0,"a":0},{"d":"08-26","v":0,"a":1},{"d":"08-27","v":1,"a":1},{"d":"08-28","v":0,"a":1},{"d":"08-29","v":1,"a":1},{"d":"08-30","v":2,"a":8},{"d":"08-31","v":3,"a":56},{"d":"09-01","v":70,"a":143},{"d":"09-02","v":127,"a":116},{"d":"09-03","v":76,"a":54},{"d":"09-04","v":71,"a":46},{"d":"09-05","v":45,"a":36},{"d":"09-06","v":37,"a":20},{"d":"09-07","v":32,"a":28},{"d":"09-08","v":30,"a":12},{"d":"09-09","v":24,"a":11},{"d":"09-10","v":18,"a":5},{"d":"09-11","v":15,"a":5},{"d":"09-12","v":6,"a":1},{"d":"09-13","v":13,"a":3},{"d":"09-14","v":6,"a":0},{"d":"09-15","v":8,"a":1},{"d":"09-16","v":6,"a":4},{"d":"09-17","v":5,"a":2},{"d":"09-18","v":2,"a":3},{"d":"09-19","v":3,"a":0},{"d":"09-20","v":0,"a":0},{"d":"09-21","v":0,"a":2},{"d":"09-22","v":2,"a":1},{"d":"09-23","v":3,"a":1},{"d":"09-24","v":0,"a":1},{"d":"09-25","v":0,"a":1},{"d":"09-26","v":2,"a":1},{"d":"09-27","v":0,"a":1},{"d":"09-28","v":2,"a":0},{"d":"09-29","v":1,"a":0},{"d":"09-30","v":0,"a":0}],"m":53.0};
+const NS = "http://www.w3.org/2000/svg";
+const S = 52, X0 = 3.1, Y1 = 18.95;
+const sx = x => (x - X0) * S, sy = y => (Y1 - y) * S;
+const W = (20.1 - X0) * S, H = (Y1 - 3.0) * S;
+const BROAD = 6, M = DATA.m;
+const el = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+const KO = {"Oxford Street":"옥스퍼드 스트리트","Regent Street":"리젠트 스트리트","Great Marlborough Street":"그레이트 말버러 스트리트",
+ "Broad Street":"브로드 스트리트","Poland Street":"폴런드 스트리트","Marshall Street":"마셜 스트리트","Berwick Street":"버윅 스트리트",
+ "Wardour Street":"와더 스트리트","Dean Street":"딘 스트리트","Soho Square":"소호 광장","Golden Square":"골든 광장",
+ "Regents Quadrant":"리젠츠 쿼드런트","Picadilly":"피카딜리","Brewer Street":"브루어 스트리트","Beak Street":"비크 스트리트",
+ "Carnaby Street":"카나비 스트리트","Old Compton Street":"올드 콤프턴 스트리트","Rupert Street":"루퍼트 스트리트","Warwick Street":"워릭 스트리트",
+ "Cambridge Street":"케임브리지 스트리트","Hopkins Street":"홉킨스 스트리트","Noel Street":"노엘 스트리트","Great Pulteney Street":"그레이트 펄트니 스트리트",
+ "Frith Street":"프리스 스트리트","Greek Street":"그릭 스트리트","Hanover Street":"하노버 스트리트","Wells Street":"웰스 스트리트",
+ "Berners Street":"버너스 스트리트","Newman Street":"뉴먼 스트리트","Great Windmill Street":"그레이트 윈드밀 스트리트","Saville Row":"새빌 로",
+ "New Bond Street":"뉴 본드 스트리트","Argyll Street":"아가일 스트리트","Little Marlborough Street":"리틀 말버러 스트리트",
+ "Bridle Street":"브라이들 스트리트","Vigo Street":"비고 스트리트","Tichborne Street":"티치본 스트리트","Market Place":"마켓 플레이스",
+ "Adam and Eve Court":"애덤 앤 이브 코트","Marlborough Mews":"말버러 뮤스","Sackville Street":"색빌 스트리트","Haymarket":"헤이마켓","Portland Street":"포틀랜드 스트리트"};
+const KOP = n => KO[n] || n;
+const SQUARES = new Set(["Soho Square","Golden Square"]);
+
+// ---------- build map ----------
+const svg = $("map"); svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+const root = el("g", {}, svg);
+const gStreets = el("g", {}, root), gYel = el("g", {}, root), gRings = el("g", {class:"hide"}, root),
+      gDeaths = el("g", {}, root), gLabels = el("g", {}, root), gHint = el("g", {}, root), gFx = el("g", {}, root),
+      gPumps = el("g", {}, root), gCases = el("g", {}, root);
+const byName = {};
+DATA.streets.forEach(s => {
+  el("path", {d: s.p.map((p,i)=>(i?"L":"M")+sx(p[0]).toFixed(1)+" "+sy(p[1]).toFixed(1)).join(""), class: s.n==="Map Frame"?"frame":"street"}, gStreets);
+  (byName[s.n] = byName[s.n] || []).push(s.p);
+});
+const labelEls = [];
+for (const [en, ko] of Object.entries(KO)) {
+  const lines = byName[en]; if (!lines) continue;
+  if (SQUARES.has(en)) { const all = lines.flat(); const cx = all.reduce((a,p)=>a+p[0],0)/all.length, cy = all.reduce((a,p)=>a+p[1],0)/all.length;
+    const t = el("text",{x:sx(cx),y:sy(cy),class:"slabel sq","text-anchor":"middle","dominant-baseline":"middle"},gLabels); t.textContent = en.toUpperCase(); labelEls.push({t,base:15}); continue; }
+  let best=null, total=0;
+  lines.forEach(l=>{ for(let i=1;i<l.length;i++){ const len=Math.hypot(l[i][0]-l[i-1][0],l[i][1]-l[i-1][1]); total+=len; if(!best||len>best.len) best={a:l[i-1],b:l[i],len}; }});
+  if (total < 0.9) continue;
+  const mx=(best.a[0]+best.b[0])/2, my=(best.a[1]+best.b[1])/2;
+  let ang=-Math.atan2(best.b[1]-best.a[1],best.b[0]-best.a[0])*180/Math.PI; if(ang>90)ang-=180; if(ang<-90)ang+=180;
+  const major=["Oxford Street","Regent Street","Broad Street","Great Marlborough Street","Regents Quadrant","Picadilly"].includes(en);
+  const t=el("text",{x:sx(mx),y:sy(my),class:"slabel","text-anchor":"middle","dominant-baseline":"middle",transform:`rotate(${ang.toFixed(1)} ${sx(mx).toFixed(1)} ${sy(my).toFixed(1)})`},gLabels);
+  t.textContent=en.toUpperCase(); labelEls.push({t,base:major?13:9.5});
+}
+const poly = pts => pts.map(p => sx(p[0]).toFixed(1)+","+sy(p[1]).toFixed(1)).join(" ");
+const centroid = pts => [pts.reduce((a,p)=>a+p[0],0)/pts.length, pts.reduce((a,p)=>a+p[1],0)/pts.length];
+function inPoly(x,y,pts){ let c=false; for(let i=0,j=pts.length-1;i<pts.length;j=i++){ const [xi,yi]=pts[i],[xj,yj]=pts[j]; if(((yi>y)!=(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi)) c=!c; } return c; }
+const SPOTS = [
+  {id:"w", pts:DATA.workhouse, name:"WORK HOUSE", rot:0},
+  {id:"b", pts:DATA.brewery, name:"BREWERY", rot:-62}
+].map(s => { const c = centroid(s.pts);
+  s.poly = el("polygon",{points:poly(s.pts),class:"yel"},gYel);
+  s.lab = el("text",{x:sx(c[0]),y:sy(c[1]),class:"yel-l","text-anchor":"middle","dominant-baseline":"middle",transform:`rotate(${s.rot} ${sx(c[0])} ${sy(c[1])})`},gYel);
+  s.lab.textContent = s.name; s.c = c; return s; });
+
+const PUMP_LABEL = "PUMP", BROAD_LABEL = "BROAD STREET PUMP";
+const BL = 0.062;
+// 사망자 등장 순서: 펌프에서 가까운 순 + 약간의 무작위 (유행이 번져가는 느낌)
+const deathEls = DATA.deaths.map((d,i) => { const r=d.a*Math.PI/180, dx=Math.cos(r)*BL, dy=Math.sin(r)*BL;
+  return {d, ln: el("line",{x1:sx(d.x-dx),y1:sy(d.y-dy),x2:sx(d.x+dx),y2:sy(d.y+dy),class:"death","stroke-width":2.3},gDeaths), key: d.db + Math.random()*260}; });
+const order = [...deathEls].sort((a,b)=>a.key-b.key);
+
+[100,200,300].forEach(m => el("circle",{cx:sx(DATA.pumps[BROAD].x),cy:sy(DATA.pumps[BROAD].y),r:m/M*S,class:"ring"},gRings));
+
+const pumpEls = DATA.pumps.map((p,i) => {
+  const g = el("g",{class:"pump"},gPumps);
+  const halo = el("circle",{cx:sx(p.x),cy:sy(p.y),r:16,class:"halo"},g);
+  const pulse = el("circle",{cx:sx(p.x),cy:sy(p.y),r:6,class:"pulse"},g);
+  const c = el("circle",{cx:sx(p.x),cy:sy(p.y),r:5.5,class:"p"},g);
+  const t = el("text",{x:sx(p.x)+9,y:sy(p.y)+4,"font-size":12},g); t.textContent = PUMP_LABEL;
+  const hit = el("circle",{cx:sx(p.x),cy:sy(p.y),r:18,class:"hit"},g);
+  g.addEventListener("click", () => { if (!gDragging) onPump(i); });
+  return {g, halo, pulse, c, t, px:sx(p.x), py:sy(p.y)};
+});
+
+// ---------- view ----------
+let vb={x:0,y:0,w:W,h:H}, anim=null;
+function applyVB(){ svg.setAttribute("viewBox",`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+  const k=W/vb.w, f=1/Math.pow(k,.75);
+  labelEls.forEach(o=>o.t.setAttribute("font-size",(o.base*f).toFixed(2)));
+  SPOTS.forEach(s=>s.lab.setAttribute("font-size",(16*f).toFixed(2)));
+  pumpEls.forEach(o=>{ o.c.setAttribute("r",(5.5*f).toFixed(2)); o.halo.setAttribute("r",(16*f).toFixed(2)); o.t.setAttribute("x",(o.px+9*f).toFixed(1)); o.t.setAttribute("y",(o.py+4*f).toFixed(1)); o.t.setAttribute("font-size",(12*f).toFixed(2)); });
+  gCases.querySelectorAll("circle").forEach(c=>c.setAttribute("r",(13*f).toFixed(2)));
+  gCases.querySelectorAll("text").forEach(t=>t.setAttribute("font-size",(14*f).toFixed(2)));
+  curF = f;
+}
+let curF = 1;
+function fitBox(x0,x1,y0,y1){ let w=(x1-x0)*S,h=(y1-y0)*S,cx=sx((x0+x1)/2),cy=sy((y0+y1)/2); const ar=W/H; if(w/h>ar)h=w/ar; else w=h*ar; return {x:cx-w/2,y:cy-h/2,w,h}; }
+function animateTo(t,ms=1000){ cancelAnimationFrame(anim); const s={...vb},t0=performance.now(); const e=u=>u<.5?4*u*u*u:1-Math.pow(-2*u+2,3)/2;
+  const step=n=>{const u=Math.min(1,(n-t0)/ms),k=e(u); for(const q of["x","y","w","h"]) vb[q]=s[q]+(t[q]-s[q])*k; applyVB(); if(u<1) anim=requestAnimationFrame(step);}; anim=requestAnimationFrame(step); }
+const FULL = {x:0,y:0,w:W,h:H};
+const toData = ev => { const r=svg.getBoundingClientRect(); const X=vb.x+(ev.clientX-r.left)/r.width*vb.w, Y=vb.y+(ev.clientY-r.top)/r.height*vb.h; return [X/S+X0, Y1-Y/S, X, Y]; };
+
+// ---------- game state ----------
+let score = 0, stage = 0;
+const VFULL = () => (typeof FULL === "function" ? FULL() : FULL);   // 두 파일의 FULL 형태를 함께 받는다
+const STAGE_NAMES = ["브리핑","범인 펌프","빈칸 두 곳","모순","반례 파일","결론 잇기","손잡이","사건 그 후"];
+const MAXSCORE = 100 + 300 + 600 + 200 + 450 + 200 + 300;
+function drawStages(){
+  $("stages").innerHTML = STAGE_NAMES.map((n,i)=>
+    `<div class="${i===stage?"on":i<stage?"done":""}${i>maxStage?" lock":""}" data-i="${i}" title="${i>maxStage?"아직 안 가 본 단계입니다":"이 단계로 돌아가기"}">${i+1}. ${n}</div>`).join("");
+}
+$("stages").addEventListener("click", ev => {
+  const d = ev.target.closest("[data-i]"); if (!d) return;
+  goStage(+d.dataset.i);          // 지금 단계를 눌러도 그 단계를 처음부터 다시 한다
+});
+function addScore(n){ if(!n) return; score += n; $("score").textContent = score; const b=$("scorebox"); b.classList.remove("bump"); void b.offsetWidth; b.classList.add("bump"); toast(`+${n}점`); }
+function toast(t){ const e=$("toast"); e.textContent=t; e.classList.add("show"); clearTimeout(e._t); e._t=setTimeout(()=>e.classList.remove("show"),1100); }
+function banner(t){ const b=$("banner"); if(!t){ b.classList.add("hide"); return; } b.textContent=t; b.classList.remove("hide"); }
+function note(html){ $("note").innerHTML = html; $("note").scrollTop = 0; }
+function confetti(n=60){ const cols=["#ffcf4a","#b3261e","#2a5d8f","#2f7d4f","#191714"]; for(let i=0;i<n;i++){ const c=document.createElement("div"); c.className="confetti";
+  c.style.left=Math.random()*100+"vw"; c.style.background=cols[i%cols.length]; c.style.animationDuration=(1.6+Math.random()*1.6)+"s"; c.style.animationDelay=(Math.random()*.4)+"s"; document.body.appendChild(c); setTimeout(()=>c.remove(),3800);} }
+
+// 질문 하나를 그려주는 도우미
+function quiz(container, opts, correctIdx, pts, onDone, explain, nextLabel){
+  const box = document.createElement("div"); box.className = "choices";
+  let tries = 0;
+  opts.forEach((o,i) => { const b=document.createElement("button"); b.innerHTML=o; box.appendChild(b);
+    b.onclick = () => { tries++;
+      if (i===correctIdx){ b.classList.add("right"); [...box.children].forEach(x=>x.disabled=true);
+        const got = tries===1 ? pts : Math.round(pts/3); addScore(got);
+        const fb=document.createElement("div"); fb.className="fb ok"; fb.innerHTML = (tries===1?"정답! ":"맞았어요. ") + explain; container.appendChild(fb);
+        const nb=document.createElement("button"); nb.className="btn"; nb.textContent=nextLabel||"다음 →"; nb.onclick=onDone; container.appendChild(nb);
+      } else { b.classList.add("wrong"); b.disabled = true; }
+    };
+  });
+  container.appendChild(box);
+}
+
+// ---------- 단계 이동 (위 단추 클릭) ----------
+let maxStage = 0;            // 지금까지 도달한 가장 뒤 단계
+const snap = [];             // 각 단계에 들어설 때의 점수
+function enterStage(i){
+  if (snap[i] === undefined) snap[i] = score;        // 처음 들어오면 기록
+  else { score = snap[i]; $("score").textContent = score; }   // 되돌아왔으면 그때 점수로
+  for (let k = i + 1; k < snap.length; k++) snap[k] = undefined;
+  stage = i; maxStage = Math.max(maxStage, i); drawStages();
+}
+function clearBoard(){
+  pick = false; finding = false; wrongs = 0; misses = 0;
+  svg.classList.remove("aim", "pickable");
+  gFx.innerHTML = ""; gHint.innerHTML = ""; gCases.innerHTML = "";
+  banner("");
+  $("tl").classList.add("hide"); $("datebox").classList.add("hide"); gRings.classList.add("hide");
+  pumpEls.forEach(o => { o.g.classList.remove("bad", "culprit"); o.pulse.classList.remove("go"); });
+  pumpEls.forEach((o, i) => o.t.textContent = i === BROAD ? "" : PUMP_LABEL);
+  doneCases = new Set();
+}
+function goStage(i){
+  if (i > maxStage) return;                 // 아직 안 가 본 단계로는 건너뛸 수 없다
+  clearBoard();
+  if (i >= 2){                              // 범인은 이미 밝혀진 뒤
+    pumpEls[BROAD].g.classList.add("culprit");
+    pumpEls[BROAD].t.textContent = BROAD_LABEL;
+  }
+  const solved = i >= 3;                    // 빈칸 두 곳도 이미 찾은 뒤
+  found = solved ? new Set(["w", "b"]) : new Set();
+  SPOTS.forEach(s => { s.poly.classList.toggle("found", solved); s.lab.classList.toggle("found", solved); });
+  if (i === 0){
+    deathEls.forEach(o => o.ln.classList.remove("on", "new", "noanim"));
+    $("spark").innerHTML = "";
+    stage0();
+  } else if (i === 1){
+    deathEls.forEach(o => { o.ln.classList.remove("new"); o.ln.classList.add("noanim", "on"); });
+    animateTo(VFULL(), 400);                // 확대돼 있던 화면을 전체 보기로
+    enterStage(1); accuse();
+  }
+  else if (i === 2) stage2();
+  else if (i === 3) stage3();
+  else if (i === 4) stage4();
+  else if (i === 5) stage5();
+  else if (i === 6) stage6();
+  else stage7();
+}
+
+// ---------- 지도 이동·확대 ----------
+// 두 파일의 뷰 컨트롤러 형태가 달라 여기서 한 번 감싼다
+const APPLY  = () => (typeof V !== "undefined" && V.applyVB) ? V.applyVB() : applyVB();
+const CANCEL = () => { if (typeof V !== "undefined" && V.cancel) V.cancel(); };
+let gDrag = null, gDragging = false;
+function zoomG(f, cx = vb.x + vb.w/2, cy = vb.y + vb.h/2){
+  const nw = Math.min(W, Math.max(W/16, vb.w*f)), nh = nw*H/W;
+  animateTo({x: cx - (cx-vb.x)*nw/vb.w, y: cy - (cy-vb.y)*nh/vb.h, w:nw, h:nh}, 250);
+}
+const toSvgG = ev => { const r = svg.getBoundingClientRect();
+  return [vb.x + (ev.clientX-r.left)/r.width*vb.w, vb.y + (ev.clientY-r.top)/r.height*vb.h]; };
+svg.addEventListener("wheel", ev => { ev.preventDefault(); const [x,y] = toSvgG(ev);
+  zoomG(ev.deltaY > 0 ? 1.25 : 0.8, x, y); }, {passive:false});
+svg.addEventListener("pointerdown", ev => { gDrag = {cx:ev.clientX, cy:ev.clientY, vb:{...vb}}; });
+addEventListener("pointermove", ev => {
+  if (!gDrag) return;
+  const r = svg.getBoundingClientRect();
+  const dx = (ev.clientX-gDrag.cx)/r.width*vb.w, dy = (ev.clientY-gDrag.cy)/r.height*vb.h;
+  if (!gDragging && Math.abs(ev.clientX-gDrag.cx) + Math.abs(ev.clientY-gDrag.cy) > 4){
+    gDragging = true; svg.classList.add("drag"); CANCEL();
+  }
+  if (gDragging){ vb.x = gDrag.vb.x - dx; vb.y = gDrag.vb.y - dy; APPLY(); }
+});
+addEventListener("pointerup", () => { gDrag = null; svg.classList.remove("drag");
+  setTimeout(() => gDragging = false, 0); });          // 드래그 직후의 클릭은 무시된다
+$("gzin").onclick    = () => zoomG(.7);
+$("gzout").onclick   = () => zoomG(1.4);
+$("gzreset").onclick = () => animateTo(VFULL(), 450);
+
+// ════════════ STAGE 0 · 사건 브리핑 ════════════
+function stage0(){
+  enterStage(0); animateTo(VFULL(),10); banner("");
+  pumpEls.forEach(o=>o.t.textContent=PUMP_LABEL);
+  note(`<span class="tag">사건 파일 No.1854</span>
+    <h2>소호에 죽음이 번지고 있다</h2>
+    <p><b>1854년 8월 31일 밤, 런던 소호.</b> (소호 = 런던 시내 한복판. 좁은 골목에 집이 다닥다닥 붙어 있고
+      가난한 노동자가 빽빽하게 살던 동네다.)</p>
+    <p>설사를 시작한 사람이 <b>하루 만에</b> 숨진다. 열흘 사이 <b>500명 넘게</b> 죽었고 주민들은 집을 버리고 달아났다.</p>
+    <div class="case">그때 의사들이 <b>모두</b> 믿던 설명이 하나 있었다 — <b>독기설</b>(毒氣說).
+      하수도가 없던 런던은 골목마다 똥오줌 냄새가 가득했고, 실제로 <b>냄새나는 동네에서 사람이 더 많이 죽었다.</b></div>
+    <p><b>그 "독기설"이란 게 무슨 뜻이었을까?</b></p>
+    <div id="qz"></div>`);
+  quiz($("qz"),
+    ["더러운 데서 나는 <b>고약한 냄새(나쁜 공기)</b>를 맡으면 병에 걸린다",
+     "물속에 <b>작은 벌레</b>가 살아서 병을 옮긴다",
+     "<b>가난한 사람</b>은 원래 병에 잘 걸린다"],
+    0, 100, stage0b,
+    "맞습니다. <b>세균</b>이 병을 일으킨다는 사실은 아직 <b>아무도 몰랐습니다</b>(밝혀지는 건 30년 뒤). " +
+    "그래서 \"냄새 탓\"이 가장 그럴듯한 설명이었죠.",
+    "그럼 나는 누구? →");
+}
+function stage0b(){
+  note(`<span class="tag">당신의 역할</span>
+    <h2>당신은 의사 존 스노</h2>
+    <table>
+      <tr><td style="width:62px">누구</td><td><b>존 스노</b>(John Snow, 1813~1858). 그때 런던에 살던 <b>진짜 의사</b>다.
+        수술 환자를 재우는 <b>마취</b>를 잘해서 빅토리아 여왕의 출산에도 불려 갔다.</td></tr>
+      <tr><td>생각</td><td>혼자만 다르게 본다 — <b>"냄새가 아니라 마시는 물이 문제다."</b></td></tr>
+      <tr><td>문제</td><td>믿어 주는 사람이 없다. <b>어떻게 증명하지?</b></td></tr>
+    </table>
+    <div class="case">당신의 무기는 <b>지도 한 장</b>. 죽은 사람이 살던 집 앞에 <b>막대 하나</b>씩 긋고,
+      동네 <b>공동 물펌프</b>는 ● 점에 <b>PUMP</b>라고 적는다. 거리 이름은 1854년 원본 그대로 영어다.</div>
+    <p class="q">※ 이 지도는 터프티가 그린 게 아니다. <b>스노가 그렸고</b>, 터프티는 자기 책
+      『시각적 설명』 31쪽에 실으면서 <b>구빈원·양조장 두 칸에 노란색만 칠했다.</b></p>
+    <p class="q">위쪽 단계 막대는 <b>눌러서 되돌아갈 수 있다.</b> 실수해도 새로고침할 필요 없다.</p>
+    <button class="btn" id="go">수사 시작 — 사망 기록 펼치기 ▶</button>`);
+  $("go").onclick = stage1;
+}
+
+// ════════════ STAGE 1 · 범인 펌프 ════════════
+const daily = DATA.daily;
+async function stage1(){
+  enterStage(1); banner("사망 기록이 하루씩 지도에 찍힙니다…");
+  note(`<span class="tag">STAGE 1</span><h2>기록이 쌓이는 동안 잘 봐 두세요</h2>
+    <p>터프티는 스노가 한 일을 <b>"시간을 공간으로 바꿨다"</b>고 말한다.
+      "며칠에 몇 명 죽었다"를 <b>세는</b> 대신, <b>"어디서 죽었나"를 찍은</b> 것이다.</p>
+    <p>막대가 <b>어디에 몰리는지</b>, 그 한가운데 <b>어떤 펌프</b>가 있는지 지켜보세요.</p>
+    <p class="q">곧 범인 펌프를 지목해야 합니다. 첫 번째에 맞히면 300점!</p>
+    <button class="btn ghost" id="skip">빨리 감기 ⏩</button>`);
+  deathEls.forEach(o=>o.ln.classList.remove("noanim"));
+  let fast=false; $("skip").onclick=()=>fast=true;
+  $("datebox").classList.remove("hide");
+  const sp=$("spark"); sp.innerHTML=""; const sw=190/daily.length;
+  const total=daily.reduce((a,d)=>a+d.v,0); let cum=0, shown=0;
+  for (let k=0;k<daily.length;k++){
+    if (stage!==1) return;                         // 중간에 단계를 옮기면 중단
+    const d=daily[k]; cum+=d.v;
+    const target=Math.round(cum/total*order.length);
+    deathEls.forEach(o=>o.ln.classList.remove("new"));
+    for(;shown<target;shown++){ order[shown].ln.classList.add("on","new"); }
+    const [mm,dd]=d.d.split("-").map(Number);
+    $("dd").textContent=`1854년 ${mm}월 ${dd}일`; $("dn").textContent=shown;
+    el("rect",{x:k*sw,y:34-d.v/127*32,width:Math.max(1,sw-1),height:d.v/127*32,fill:d.v===127?"#b3261e":"#a59d90"},sp);
+    await sleep(fast?15:(d.v>20?260:90));
+  }
+  deathEls.forEach(o=>o.ln.classList.remove("new"));
+  await sleep(300);
+  if (stage===1) accuse();
+}
+let pick=false, wrongs=0;
+function accuse(){
+  pick=true; wrongs=0; svg.classList.add("pickable"); banner("🔎 범인이라고 생각하는 펌프를 클릭하세요");
+  note(`<span class="tag">STAGE 1</span><h2>범인 펌프는 어디?</h2>
+    <p>지도에 <b>PUMP</b>라고 적힌 펌프가 <b>13곳</b> 있습니다. 검은 막대가 가장 빽빽한 곳,
+      그 한가운데의 펌프를 찾아 <b>클릭</b>하세요.</p>
+    <p class="q">힌트: 정작 범인 펌프에는 지도에 이름표가 없었다고 합니다.</p>
+    <div id="acc"></div>`);
+  pumpEls.forEach((o,i)=>{ o.t.textContent = i===BROAD ? "" : PUMP_LABEL; });
+}
+function onPump(i){
+  if(!pick) return;
+  const near = DATA.counts[i];
+  if (i===BROAD){
+    pick=false; svg.classList.remove("pickable"); banner("");
+    const pts = [300,200,120,80][Math.min(wrongs,3)]; addScore(pts); confetti(70);
+    pumpEls[BROAD].g.classList.add("culprit"); pumpEls[BROAD].pulse.classList.add("go"); pumpEls[BROAD].t.textContent=BROAD_LABEL;
+    gRings.classList.remove("hide");
+    animateTo(fitBox(10.6,14.6,10.2,13.4));
+    note(`<span class="tag">STAGE 1 · 해결</span><h2>범인은 브로드 스트리트 펌프!</h2>
+      <p>사망자마다 가장 가까운 펌프를 따져 보면 <b>578명 중 ${near}명(${Math.round(near/578*100)}%)</b>이
+        이 펌프 한 곳에 몰린다. <b>89%</b>는 200m 안에 있다. 빨간 점선은 펌프에서 100·200·300m.</p>
+      <div class="case">🏷️ <b>원본 지도에는, 범인만 이름이 없다.</b><br>
+        스노가 인쇄한 <b>원본 지도</b>를 보면 펌프 옆에 <b>PUMP</b>라는 글자가 또박또박 적혀 있다.
+        그런데 <b>브로드 스트리트 펌프 옆에는 그 글자가 없다.</b> 검은 점 하나로 조용히 찍혀 있을 뿐이다.<br>
+        그래서 터프티도 책에서 위치를 <b>글로</b> 알려 준다 —
+        <b>"펌프는 지도 한가운데, BROAD STREET이라고 쓴 글자의 D 바로 오른쪽에 있다."</b>
+        그림만 봐서는 못 찾으니까.<br><br>
+        <b>스노가 일부러 뺀 걸까? 아니다.</b> 이 펌프를 고발하려고 그린 지도다.
+        사망자 막대도 거기가 가장 빽빽하고, 펌프 자리에 <b>점은 찍혀 있다.</b>
+        빠진 건 <b>글자 하나</b>뿐이다. 아마 <b>자리가 없어서</b>였을 것이다 —
+        그 자리에 글자를 넣으면 사망자 막대를 덮어 버린다.<br>
+        <span style="color:var(--muted);font-size:13px">※ 원본 지도에 <b>PUMP라고 글씨가 적힌 자리는 8군데</b>다.
+        펌프가 8개뿐이었다는 뜻은 아니다 — 스노는 책에 <b>13곳</b>이라고 썼다. 8은 <b>글씨가 적힌 수</b>일 뿐이다.<br>
+        ※ 지금 지도에 빨갛게 뜬 <b>BROAD STREET PUMP</b>는 범인을 맞혀서
+        <b>이 게임이 붙여 준 이름표</b>다. 원본에는 없다.</span></div>
+      <p>${wrongs===0?"단번에 맞혔습니다!":`${wrongs}번 헛짚은 끝에 찾았습니다.`} <span class="pts">+${pts}점</span></p>
+      <button class="btn" id="n">다음 사건 → 수상한 빈칸</button>`);
+    $("n").onclick=stage2;
+  } else {
+    wrongs++; pumpEls[i].g.classList.add("bad"); pumpEls[i].pulse.classList.remove("go");
+    const msg = near<10 ? `이 펌프 주변은 한산하다 — 가장 가까운 사망자 <b>${near}명</b>뿐.` : `수상하긴 하지만 가장 가까운 사망자는 <b>${near}명</b>. 더 검은 곳이 있다.`;
+    const acc=$("acc"); if(acc) acc.innerHTML = `<div class="fb no">❌ ${KOP(DATA.pumps[i].n)} 펌프 — ${msg}${wrongs>=2?"<br>힌트: 지도 한가운데를 비스듬히 지나는 <b>BROAD STREET</b>(브로드 스트리트)를 보세요.":""}</div>`;
+    if (wrongs>=3){ pumpEls[BROAD].pulse.classList.add("go"); }
+  }
+}
+
+// ════════════ STAGE 2 · 빈칸 두 곳 ════════════
+let finding=false, misses=0, found=new Set();
+function stage2(){
+  enterStage(2); gRings.classList.add("hide"); $("datebox").classList.add("hide"); pumpEls[BROAD].pulse.classList.remove("go");
+  animateTo(fitBox(10.4,15.1,10.2,14.1));
+  finding=true; misses=0; found=new Set(); svg.classList.add("aim");
+  SPOTS.forEach(s=>{s.poly.classList.remove("found"); s.lab.classList.remove("found");});
+  banner("🔎 사망자가 몰린 곳 한가운데, 이상하게 텅 빈 건물 두 곳을 클릭!");
+  renderS2();
+}
+function renderS2(extra=""){
+  note(`<span class="tag">STAGE 2</span><h2>죽음의 바다 속 빈칸 두 곳</h2>
+    <p>펌프 바로 옆인데 <b>막대가 거의 없는 큰 건물</b>이 두 곳 있다. 찾아서 클릭하세요.
+      (지도 글자는 영어 원본 그대로다)</p>
+    <div class="checks"><span data-s="w" class="${found.has("w")?"got":""}" title="${found.has("w")?"구빈원 다시 보기":"이 빈칸을 찾으러 가기"}">${found.has("w")?"✔ 구빈원":"? 빈칸 A"}</span><span data-s="b" class="${found.has("b")?"got":""}" title="${found.has("b")?"양조장 다시 보기":"이 빈칸을 찾으러 가기"}">${found.has("b")?"✔ 양조장":"? 빈칸 B"}</span></div>
+    <p class="q">검은 것만 보면 "콜레라가 심했다"로 끝난다. <b>죽지 않은 사람</b>을 찾아야 원인이 보인다.</p>
+    <div id="s2x">${extra}</div>`);
+}
+svg.addEventListener("click", ev => {
+  if (!finding || gDragging) return;
+  const [x,y,X,Y] = toData(ev);
+  const hit = SPOTS.find(s => !found.has(s.id) && (inPoly(x,y,s.pts) || Math.hypot(x-s.c[0],y-s.c[1])<0.32));
+  if (hit){ foundSpot(hit); return; }
+  if (SPOTS.some(s=>found.has(s.id) && inPoly(x,y,s.pts))) return;
+  misses++;
+  el("circle",{cx:X,cy:Y,r:14*curF,class:"miss"},gFx);
+  const t=el("text",{x:X,y:Y+5*curF,class:"xmark","text-anchor":"middle","font-size":16*curF},gFx); t.textContent="✕";
+  setTimeout(()=>{ gFx.innerHTML=""; }, 900);
+  if (misses===3 || misses===6){ const s=SPOTS.find(s=>!found.has(s.id)); gHint.innerHTML=""; el("circle",{cx:sx(s.c[0]),cy:sy(s.c[1]),r:(misses===3?1.1:.6)*S,class:"hintc"},gHint); banner("💡 노란 점선 안을 찾아보세요"); }
+});
+// 체크 칩을 눌러 그 빈칸으로 이동 / 다시 보기
+const SPOT_BOX = {w:[10.7,13.0,12.2,14.1], b:[12.9,14.7,11.4,12.9]};
+function s2chip(id){
+  if (stage !== 2) return;
+  if (found.has(id)){                        // 이미 찾은 곳 — 그 자리를 다시 보여준다
+    animateTo(fitBox(...SPOT_BOX[id]));
+    toast(id === "w" ? "✔ 구빈원 — 이미 찾은 곳" : "✔ 양조장 — 이미 찾은 곳");
+    return;
+  }
+  const qz = $("qz");
+  if (qz && !qz.querySelector(".fb")){       // 아직 답 안 한 질문이 떠 있으면 먼저 풀게 한다
+    toast("먼저 질문에 답하세요"); return;
+  }
+  finding = true; svg.classList.add("aim");
+  animateTo(fitBox(10.4,15.1,10.2,14.1));
+  banner(id === "w" ? "🔎 빈칸 A를 찾으세요 — 왼쪽 위 큰 건물" : "🔎 빈칸 B를 찾으세요 — 오른쪽 작은 건물");
+  renderS2();
+}
+$("note").addEventListener("click", ev => {
+  const c = ev.target.closest(".checks [data-s]");
+  if (c) s2chip(c.dataset.s);
+});
+
+function foundSpot(s){
+  finding=false; found.add(s.id); gHint.innerHTML=""; s.poly.classList.add("found"); s.lab.classList.add("found"); addScore(150); banner("");
+  if (s.id==="w"){
+    animateTo(fitBox(10.7,13.0,12.2,14.1));
+    renderS2(`<div class="case">🏚️ <b>구빈원</b>(WORK HOUSE)<br>갈 곳 없는 가난한 사람을 나라에서 모아 재워 주던 시설이다.
+      사방이 사망자가 나온 집인데, <b>안에서 지내던 535명 중 죽은 사람은 5명</b>뿐.</div>
+      <p><b>왜 이 사람들은 살았을까?</b></p><div id="qz"></div>`);
+    quiz($("qz"), ["건물 안 공기가 깨끗해서","구빈원 <b>마당 안에 자기네 우물과 펌프</b>가 있어서","수용된 사람들이 원래 건강해서"], 1, 150, nextSpot,
+      "구빈원엔 <b>구내 우물</b>이 있어 아무도 브로드 스트리트로 물을 길으러 가지 않았다. 주변과 같은 비율이었다면 <b>100명 넘게</b> 죽었을 것이다. (스노의 책 42쪽)");
+  } else {
+    animateTo(fitBox(12.9,14.7,11.4,12.9));
+    renderS2(`<div class="case">🍺 <b>양조장</b>(BREWERY)<br>술 만드는 공장이다. 펌프에서 걸어서 1분,
+      가장 위험한 자리인데 <b>일꾼 70명 중 심하게 앓은 사람이 0명</b>.</div>
+      <p><b>비결은?</b></p><div id="qz"></div>`);
+    quiz($("qz"), ["물 대신 <b>맥아주</b>를 마셨고, 깊은 <b>자체 우물</b>이 있었다","양조장 냄새가 독기를 막아 줬다","일꾼들이 모두 다른 동네에 살았다"], 0, 150, nextSpot,
+      "일꾼들은 날마다 맥아주(보리로 만든 술)를 받아 마셨고 거리 펌프 물은 길어 오지 않았다. <b>맥주 덕분에 살아남은 셈!</b> (스노의 책 42쪽)");
+  }
+}
+function nextSpot(){
+  if (found.size<2){ finding=true; animateTo(fitBox(10.4,15.1,10.2,14.1)); banner("🔎 남은 빈칸 하나를 더 찾으세요!"); renderS2(); return; }
+  svg.classList.remove("aim"); confetti(40);
+  note(`<span class="tag">STAGE 2 · 해결</span><h2>빈칸 두 곳을 찾았다</h2>
+    <p>구빈원 <b>535명 중 5명</b>, 양조장 <b>70명 중 0명</b>. 둘 다 펌프 코앞인데 멀쩡하다.</p>
+    <div class="case">그런데… 잠깐. 이거 <b>내 주장에 불리한 것</b> 아닌가?</div>
+    <button class="btn" id="n">다음 → 어긋나는 대목</button>`);
+  $("n").onclick=stage3;
+}
+
+// ════════════ STAGE 3 · 모순 (기준을 바꾼다) ════════════
+function stage3(){
+  enterStage(3); svg.classList.remove("aim"); banner("");
+  SPOTS.forEach(s=>{s.poly.classList.add("found"); s.lab.classList.add("found");});
+  animateTo(fitBox(10.4,15.1,10.0,14.0));
+  note(`<span class="tag">STAGE 3 · 고비</span><h2>잠깐 — 이거 오히려 반대 증거 아닌가?</h2>
+    <p>방금 <b>"이 펌프가 범인"</b>이라고 해 놓고, 정작 <b>펌프에서 가장 가까운 두 건물이 멀쩡하다.</b>
+      펌프 코앞에 <b>605명</b>이 있었는데 죽은 사람은 5명뿐이다. 말이 안 맞는다.</p>
+    <p>그런데 세 곳의 <b>공통점과 차이점</b>을 보자.</p>
+    <table>
+      <tr><th></th><th>펌프까지</th><th>마신 물</th><th>결과</th></tr>
+      <tr><td>구빈원</td><td>1분</td><td>자기네 우물</td><td>535 → 5명</td></tr>
+      <tr><td>양조장</td><td>1분</td><td>맥아주·자체 우물</td><td>70 → 0명</td></tr>
+      <tr class="me"><td>주변 집</td><td>1~2분</td><td><b>브로드 펌프 물</b></td><td>집집마다</td></tr>
+    </table>
+    <p><b>거리는 똑같다. 다른 건 마신 물 하나뿐이다.</b></p>
+    <p><b>그럼 기준을 어떻게 고쳐야 할까?</b></p>
+    <div id="qz"></div>`);
+  quiz($("qz"),
+    ["펌프는 범인이 아니다. 처음부터 다시 찾아야 한다",
+     "<b>\"가까우면 죽는다\"</b>가 아니라 <b>\"그 물을 마시면 죽는다\"</b>로 바꾼다",
+     "구빈원과 양조장은 그냥 운이 좋았을 뿐이다"],
+    1, 200, stage4,
+    "바로 이 지점이 이 사건의 고비입니다. 기준을 <b>거리에서 '그 물을 마셨느냐'로</b> 바꾸는 순간, " +
+    "<b>안 죽은 사람이 가장 강한 증거</b>가 됩니다 — 같은 자리에 있었는데 <b>그 물만 안 마셨더니 살았으니까요.</b>",
+    "그럼 반대쪽도 확인하자 →");
+}
+
+// ════════════ STAGE 4 · 반례 파일 ════════════
+const CASES = [
+  {id:1, at:[13.3,15.45], title:"노엘 스트리트의 가구 만드는 사람",
+   story:"이 사람은 <b>브로드 스트리트 펌프에서 꽤 먼</b> 노엘 스트리트에 살았다. 집 근처엔 다른 펌프도 있다. 그런데 콜레라로 죽었다.",
+   q:"어떻게 된 걸까?", opts:["바람을 타고 독기가 날아왔다","<b>낮에는 브로드 스트리트에서 일했다</b>","집 근처 펌프도 오염돼 있었다"], a:1,
+   ex:"그는 <b>브로드 스트리트의 작업장</b>에서 일하며 그 물을 마셨다. <b>사는 곳이 아니라 마신 곳</b>이 중요했다."},
+  {id:2, at:[15.6,6.6], title:"먼 골목에서 죽은 아이 둘",
+   story:"지도 남동쪽, 펌프에서 멀리 떨어진 골목에서 <b>아이 둘</b>이 죽었다. 이 근처는 비교적 한산하다.",
+   q:"아이들과 브로드 스트리트의 연결고리는?", opts:["<b>브로드 스트리트의 학교</b>에 다니며 그 물을 마셨다","병원에서 옮았다","같은 가게 우유를 마셨다"], a:0,
+   ex:"두 아이는 <b>브로드 스트리트 근처 학교</b>에 다녔고, 그 펌프 물을 마시는 습관이 있었다."},
+  {id:3, at:null, title:"지도 밖 — 웨스트엔드의 59세 부인",
+   story:"여러 달 동안 브로드 스트리트 근처에 간 적도 없는 부인. 그런데 <b>8월 31일</b> 물을 받아 마시고 금요일 저녁 발병, <b>토요일 사망</b>. 방문한 조카딸도 그 물을 마시고 자기 집에 돌아가 죽었다. <b>두 동네 모두 콜레라가 없던 곳</b>이었다.",
+   q:"그녀는 어떤 물을 마셨을까?", opts:["자기 동네 우물물","<b>브로드 스트리트 펌프 물을 수레로 배달시켜</b> 마셨다","끓인 템스강 물"], a:1,
+   ex:"그 펌프 물맛을 좋아해 <b>매일 수레 편으로 배달</b>시켜 마셨다. 펌프와 무관해 보이던 죽음이 <b>오히려 그 우물을 지목하는 가장 강력한 증거</b>가 됐다."}
+];
+let doneCases = new Set();
+function stage4(){
+  enterStage(4); animateTo(VFULL()); banner("📁 파란 사건 핀을 클릭해 반례를 조사하세요");
+  const bp=DATA.pumps[BROAD];
+  CASES.forEach(c => {
+    const g=el("g",{class:"casepin"},gCases);
+    let cx, cy;
+    if (c.at){ cx=sx(c.at[0]); cy=sy(c.at[1]); } else { cx=sx(4.4); cy=sy(4.2); }
+    el("path",{d:`M${sx(bp.x)} ${sy(bp.y)}L${cx} ${cy}`,class:"caseline"},gCases);
+    gCases.appendChild(g);
+    el("circle",{cx,cy,r:13},g); const t=el("text",{x:cx,y:cy+5,"text-anchor":"middle","font-size":14},g); t.textContent=c.id;
+    g.addEventListener("click", ()=>{ if (!gDragging) openCase(c,g); });
+    c.g=g;
+  });
+  if (typeof V !== "undefined" && V.applyVB) V.applyVB(); else applyVB();
+  renderS4();
+}
+function renderS4(){
+  note(`<span class="tag">STAGE 4</span><h2>이번엔 반대 — 멀리 살았는데 죽은 사람들</h2>
+    <p>앞에서는 <b>가까운데 안 죽은 사람</b>을 봤다. 이번엔 반대다.
+      브로드 스트리트에서 <b>멀리 떨어진 곳에서도</b> 사망자가 나왔다.</p>
+    <p>좋은 탐정은 자기 결론에 <b>불리한 사례를 숨기지 않고</b> 하나씩 찾아가 묻는다 —
+      <b>"이 사람은 무슨 물을 마셨나?"</b></p>
+    <div class="checks">${CASES.map(c=>`<span class="${doneCases.has(c.id)?"got":""}">${doneCases.has(c.id)?"✔":"📁"} 사건 ${c.id}</span>`).join("")}</div>
+    <p class="q">지도 위 <b>파란 핀 1·2·3</b>을 클릭하세요. 3번은 지도 밖이라 왼쪽 아래 구석에 있어요.</p>`);
+}
+function openCase(c,g){
+  if (doneCases.has(c.id)) return;
+  banner("");
+  note(`<span class="tag">STAGE 4 · 사건 ${c.id}</span><h2>${c.title}</h2><div class="case">${c.story}</div><p><b>${c.q}</b></p><div id="qz"></div>`);
+  quiz($("qz"), c.opts, c.a, 150, () => { doneCases.add(c.id); g.classList.add("done");
+    if (doneCases.size<3){ banner("📁 남은 사건 핀을 클릭하세요"); renderS4(); }
+    else { confetti(40); note(`<span class="tag">STAGE 4 · 해결</span><h2>반례가 오히려 증거가 됐다</h2>
+      <p>세 사건 모두 결국 <b>브로드 스트리트 펌프 물</b>로 이어졌다.</p>
+      <div class="case">터프티는 이 태도를 높이 산다 — 목적은 <b>논쟁에서 이기는 것이 아니라 옳은 답을 찾는 것</b>.
+        스노는 부인의 사례를 찾아낸 동료 의사(프레이저 박사)에게 공을 돌리기도 했다.</div>
+      <button class="btn" id="n">이제 조각을 이어 보자 →</button>`); $("n").onclick=stage5; }
+  }, c.ex);
+}
+
+// ════════════ STAGE 5 · 결론 잇기 ════════════
+function stage5(){
+  enterStage(5); gCases.innerHTML=""; banner(""); animateTo(VFULL());
+  note(`<span class="tag">STAGE 5</span><h2>네 줄로 이으면 — 그래서 범인은?</h2>
+    <p>지금까지 모은 조각이 넷이다. 따로 보면 어긋나지만, 순서대로 이으면 한 곳을 가리킨다.</p>
+    <ol class="chain">
+      <li><b>가까운데 죽었다</b> — 578명 중 358명(62%)이 이 펌프가 가장 가까웠다</li>
+      <li><b>가까운데 안 죽었다</b> — 구빈원·양조장. 그 물을 <b>안 마셨다</b></li>
+      <li><b>멀리서 죽었다</b> — 목수·아이 둘·부인. 어떻게든 그 물을 <b>마셨다</b></li>
+      <li class="fin"><b>따라서…?</b></li>
+    </ol>
+    <p><b>세 가지 설명 중, 위 네 조각을 <u>전부</u> 맞추는 것은?</b></p>
+    <div id="qz"></div>`);
+  quiz($("qz"),
+    ["펌프에 <b>가까우면</b> 죽는다",
+     "그 펌프 <b>물을 마시면</b> 죽는다",
+     "<b>나쁜 공기(독기)</b> 때문이다"],
+    1, 200, stage5b,
+    "오직 이 설명만 네 조각을 전부 맞춥니다.<br>" +
+    "· <b>거리설 ✕</b> — 코앞의 양조장이 멀쩡한 걸 설명 못 한다<br>" +
+    "· <b>독기설 ✕</b> — 같은 공기를 마신 양조장 일꾼은 왜 살았고, 그 동네 공기를 쐰 적도 없는 부인은 왜 죽었나",
+    "그래서 어떻게 했나 →");
+}
+function stage5b(){
+  confetti(50);
+  note(`<span class="tag">STAGE 5 · 결론</span><h2>범인은 '거리'가 아니라 '그 물'</h2>
+    <div class="case"><b>죽고 사는 것을 가른 것은 거리도, 공기도 아니었다.
+      오직 "브로드 스트리트 펌프 물을 마셨느냐"였다.</b></div>
+    <p>터프티가 이 지도를 두고 던지는 질문이 바로 이것이다 —
+      <b>"무엇과 비교하는가?(Compared with what?)"</b></p>
+    <p>죽은 사람만 봤으면 "여기가 심했다"로 끝났다. <b>안 죽은 사람까지 같이 보니까</b> 비로소 범인이 보였다.</p>
+    <button class="btn" id="n">마지막 사건 → 손잡이 결단</button>`);
+  $("n").onclick=stage6;
+}
+
+// ════════════ STAGE 6 · 손잡이 ════════════
+function stage6(){
+  enterStage(6); gCases.innerHTML=""; banner("");
+  const tl=$("tl"); tl.classList.remove("hide");
+  tl.innerHTML = `<h3>일별 콜레라 사망자 — 9월 7일까지의 기록</h3><div class="sub">9월 7일 밤, 당신은 교구위원회(동네 일을 정하던 주민 대표 모임) 앞에 섰다. 펌프 손잡이를 떼어 달라고 요청한다.</div><svg id="tsvg"></svg>`;
+  drawTimeline(false);
+  note(`<span class="tag">STAGE 6</span><h2>손잡이를 떼면 어떻게 될까?</h2>
+    <p>9월 8일 손잡이가 제거됐다. 흔히 <b>"그래서 유행이 끝났다"</b>로 이야기가 끝난다.</p>
+    <p>그래프를 잘 보고 예측해 보세요. <b>사망자가 가장 많았던 날은?</b></p><div id="qz"></div>`);
+  quiz($("qz"), ["8월 31일","9월 2일","9월 7일"], 1, 100, step6b, "정점은 <b>9월 2일, 127명</b>. 9월 7일엔 이미 32명으로 줄어 있었다.");
+}
+function step6b(){
+  drawTimeline(true);
+  $("tl").querySelector("h3").textContent = "일별 콜레라 사망자 — 전체 기록 (8/19 ~ 9/30)";
+  $("tl").querySelector(".sub").textContent = "점선이 손잡이를 뗀 9월 8일. 그 전에 이미 크게 꺾여 있었다.";
+  note(`<span class="tag">STAGE 6</span><h2>최종 판단</h2>
+    <p>손잡이 제거 후 사망자는 계속 줄었다. 하지만 <b>그 전부터 이미 줄고 있었다.</b>
+      많은 주민이 동네를 떠났고, 걸릴 사람도 남아 있지 않았다.</p>
+    <p><b>손잡이 제거가 유행을 끝냈다고 말할 수 있을까?</b></p><div id="qz"></div>`);
+  quiz($("qz"), ["그렇다 — 손잡이를 떼자마자 끝났다","<b>단정하기 어렵다</b> — 이미 정점을 지나 줄고 있었다","아니다 — 공기가 맑아져서 끝났다"], 1, 200, stage7,
+    "터프티의 지적 그대로입니다 — <b>\"스노의 업적에서 가장 유명한 부분이, 그의 증거 중 가장 불확실한 부분이기도 하다.\"</b> " +
+    "그러니 손잡이는 이 이야기의 결말이 아닙니다. 진짜 결말은 그다음에 있습니다.",
+    "사건 그 후 →");
+}
+function drawTimeline(full){
+  const s=$("tsvg"), D=DATA.daily, cw=900, h=330, l=40, r=10, t=30, bt=40, max=140; s.setAttribute("viewBox",`0 0 ${cw} ${h}`); s.innerHTML="";
+  const bw=(cw-l-r)/D.length, ys=v=>h-bt-v/max*(h-bt-t);
+  [0,40,80,120].forEach(v=>{ el("line",{x1:l,x2:cw-r,y1:ys(v),y2:ys(v),stroke:"#efe9dd"},s); const tx=el("text",{x:l-6,y:ys(v)+4,"text-anchor":"end","font-size":11,fill:"#8b8378"},s); tx.textContent=v; });
+  const iH=D.findIndex(d=>d.d==="09-08");
+  D.forEach((d,k)=>{ const future = !full && k>=iH; const x=l+k*bw+1, w=bw-2, hh=future? (h-bt-ys(30)) : h-bt-ys(d.v);
+    const rr=el("rect",{x,y:future?ys(30):ys(d.v),width:w,height:Math.max(0,hh),rx:2,class:"tbar"+(future?" future":"")+(full&&d.v===127?" peak":"")},s);
+    if(future){ rr.setAttribute("height",0); }
+    const [mm,dd]=d.d.split("-").map(Number);
+    if(dd===1||dd%5===0||k===0){ const tx=el("text",{x:x+w/2,y:h-bt+15,"text-anchor":"middle","font-size":11,fill:"#8b8378"},s); tx.textContent=(dd===1||k===0)?`${mm}/${dd}`:dd; }
+    if(!future && full){ rr.style.transition="height .6s, y .6s"; }
+  });
+  const xH=l+iH*bw+bw/2; el("line",{x1:xH,x2:xH,y1:t-12,y2:h-bt,stroke:"#191714","stroke-width":1.5,"stroke-dasharray":"4 3"},s);
+  const a=el("text",{x:xH+6,y:t-2,"font-size":12.5,"font-weight":800,fill:"#191714"},s); a.textContent="9월 8일 손잡이 제거";
+  if(!full){ const q=el("text",{x:xH+60,y:ys(60),"font-size":40,"font-weight":800,fill:"#cfc5b2"},s); q.textContent="?"; }
+  else { const iP=D.findIndex(d=>d.v===127); const p=el("text",{x:l+iP*bw-4,y:ys(127)+12,"text-anchor":"end","font-size":12.5,"font-weight":800,fill:"#b3261e"},s); p.textContent="정점 9/2 · 127명"; }
+}
+
+// ════════════ STAGE 7 · 사건 그 후 ════════════
+function stage7(){
+  enterStage(7); $("tl").classList.add("hide"); animateTo(VFULL()); banner("");
+  SPOTS.forEach(s=>{s.poly.classList.add("found"); s.lab.classList.add("found");});
+  pumpEls[BROAD].g.classList.add("culprit"); pumpEls[BROAD].t.textContent=BROAD_LABEL;
+  note(`<span class="tag">사건 그 후</span><h2>스노는 살아서 인정받지 못했다</h2>
+    <p>솔직히 말하면, 이 지도는 <b>그때 사람들을 설득하지 못했다.</b></p>
+    <ul class="after">
+      <li><b>1855년</b> — 정부가 꾸린 조사위원회가 스노의 물 이야기를 <b>받아들이지 않았다.</b>
+        여전히 "나쁜 공기 탓"이라고 결론 냈다.</li>
+      <li><b>1858년</b> — 스노는 <b>45세에 죽었다.</b> 자기가 옳았다는 걸 끝내 못 보고.</li>
+    </ul>
+    <div class="case">눈에 보이지도 않는 뭔가가 물에 들어 있다는 말이, 그때로서는 너무 이상했던 것이다.</div>
+    <button class="btn" id="n">그런데 그 뒤에… →</button>`);
+  $("n").onclick = stage7b;
+}
+function stage7b(){
+  note(`<span class="tag">사건 그 후</span><h2>그런데 결국 스노가 맞았다</h2>
+    <ul class="after">
+      <li><b>1858년 여름</b> — 템스강이 썩어 의회가 문을 닫을 지경이 되자, 런던은 마침내
+        <b>하수도를 새로 깔기</b> 시작했다(1859년 착공). <b>똥물과 마실 물을 떼어 놓은 것이다.</b></li>
+      <li><b>1866년</b> — 런던의 마지막 큰 콜레라 유행. 하필 <b>물을 제대로 거르지 않고 공급하던 회사</b>의
+        구역에서만 터졌다. 스노의 말이 다시 한번 맞아떨어졌다.</li>
+      <li><b>1884년</b> — 로베르트 코흐가 <b>콜레라균</b>을 현미경으로 찾아냈다.
+        스노가 "물에 뭔가 있다"고 한 지 <b>30년 만</b>이었다.</li>
+    </ul>
+    <div class="case">오늘날 존 스노는 <b>역학의 아버지</b>로 불린다. "어디서, 누가, 무엇을 했길래 걸렸나"를
+      자료로 따져 원인을 찾는 방식 — <b>코로나 때 우리가 매일 보던 그 방식</b>이 여기서 시작됐다.</div>
+    <p class="q"><b>스노는 콜레라가 왜 생기는지 몰랐다.</b> 세균도 몰랐다. 그런데도 지도 한 장으로
+      <b>어느 우물을 막아야 하는지를 정확히 짚었다.</b> 원인을 다 몰라도,
+      <b>잘 그린 그림 한 장이면 결정을 내릴 수 있다.</b></p>
+    <button class="btn" id="n">수사 결과 보기 🏅</button>`);
+  $("n").onclick = ending;
+}
+function ending(){
+  const pct = score/MAXSCORE;
+  const [rank, color, msg] = pct>=.85 ? ["존 스노급 탐정","#b8860b","증거를 보고, 비교하고, 반례까지 챙겼다. 완벽한 수사!"]
+    : pct>=.6 ? ["수석 역학 조사관","#7d8a96","핵심은 다 잡았다. 몇 번의 헛짚음은 좋은 공부."]
+    : ["견습 탐정","#a0703a","사건은 풀었다! 다시 하면 더 빨리 찾을 수 있다."];
+  confetti(110);
+  note(`<div class="end"><span class="tag">사건 종결</span>
+    <svg class="medal" viewBox="0 0 120 120"><path d="M38 6h18l8 34H46z" fill="#b3261e"/><path d="M82 6H64l-8 34h18z" fill="#2a5d8f"/>
+      <circle cx="60" cy="74" r="38" fill="${color}"/><circle cx="60" cy="74" r="30" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="3 3"/>
+      <circle cx="56" cy="70" r="12" fill="none" stroke="#fff" stroke-width="5"/><path d="M65 79l11 11" stroke="#fff" stroke-width="6" stroke-linecap="round"/></svg>
+    <div class="rank">${rank}</div><div class="bigscore">${score}<small style="font-size:18px;color:#8b8378"> / ${MAXSCORE}</small></div>
+    <p style="margin-top:6px">${msg}</p></div>
+    <div class="lesson"><b>이 지도가 좋은 데이터 시각화인 이유 — 세 가지</b><ol>
+      <li><b>축을 바꿨다</b> — "며칠에 몇 명"을 세는 대신 <b>"어디서 죽었나"를 지도에 찍었다</b></li>
+      <li><b>비교를 넣었다</b> — 죽은 사람 옆에 <b>안 죽은 사람</b>(구빈원·양조장·한산한 동네)을 같이 놓았다</li>
+      <li><b>불리한 사례를 숨기지 않았다</b> — 자기 주장과 안 맞는 죽음을 <b>스스로 먼저 찾아</b> 설명했다</li></ol>
+      <p style="margin-top:8px;font-weight:800">점 하나가 사람 한 명이었기에, 그 뭉침이 증거가 되었다.</p></div>
+    <p class="q">인용할 때 — "터프티의 지도"가 아니라 <b>"존 스노의 콜레라 점 지도(1854),
+      터프티 『시각적 설명』 31쪽 수록"</b>으로 쓴다.</p>
+    <button class="btn" id="again">처음부터 다시 ↺</button>`);
+  $("again").onclick = reset;
+}
+function reset(){
+  score=0; $("score").textContent=0; doneCases=new Set(); found=new Set(); pick=false; finding=false;
+  maxStage=0; snap.length=0;
+  deathEls.forEach(o=>o.ln.classList.remove("on","new","noanim"));
+  pumpEls.forEach(o=>{o.g.classList.remove("bad","culprit"); o.pulse.classList.remove("go");});
+  SPOTS.forEach(s=>{s.poly.classList.remove("found"); s.lab.classList.remove("found");});
+  gCases.innerHTML=""; gHint.innerHTML=""; gFx.innerHTML=""; gRings.classList.add("hide");
+  svg.classList.remove("aim","pickable");
+  $("datebox").classList.add("hide"); $("tl").classList.add("hide"); $("spark").innerHTML="";
+  stage0();
+}
+
+drawStages(); applyVB(); stage0();
+</script>
+</body>
+</html>
