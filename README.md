@@ -3,12 +3,14 @@
 존 스노(John Snow)가 1854년 런던 소호에서 그린 콜레라 점 지도를
 8단계 추리 게임으로 만든 웹페이지입니다.
 
-## 두 가지로 볼 수 있습니다
+## 세 가지로 볼 수 있습니다
 
 - **▶ 콜레라 탐정 (게임)** — https://gypog5122-cell.github.io/cholera-detective/
   직접 범인 펌프를 지목하며 8단계로 푸는 추리 게임
 - **▶ 지도 읽기 (해설)** — https://gypog5122-cell.github.io/cholera-detective/map/
   10단계 해설을 따라가며 확대·축소하고, 같은 데이터를 막대그래프로 다시 세어 보는 페이지
+- **▶ 발표 내용 정리 (문서)** — https://gypog5122-cell.github.io/cholera-detective/report/
+  지도를 확대 그림 11장으로 나눠 읽고, 증거를 네 줄로 이어 결론까지 가는 읽기 문서
 
 ## 게임은 이렇게 진행됩니다
 

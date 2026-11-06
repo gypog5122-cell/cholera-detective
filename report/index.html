@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>콜레라 지도 — 발표 내용 정리</title>
+<style>
+:root{
+  --paper:#faf8f3; --card:#fff; --ink:#191714; --ink2:#4d4842; --muted:#8b8378;
+  --rule:#e4ddcf; --line:#cfc5b2; --red:#b3261e; --gold:#b8860b; --blue:#2a5d8f;
+  --yellow:#fff3b0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"Pretendard","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;
+  font-size:16px; line-height:1.78; word-break:keep-all;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{display:grid;grid-template-columns:232px minmax(0,1fr);gap:48px;
+  max-width:1180px;margin:0 auto;padding:56px 28px 120px}
+
+/* 목차 */
+nav{position:sticky;top:34px;align-self:start;font-size:13.5px;line-height:1.6}
+nav .nt{font-size:11px;letter-spacing:.18em;color:var(--muted);margin-bottom:12px}
+nav a{display:block;color:var(--ink2);text-decoration:none;padding:5px 0 5px 11px;
+  border-left:2px solid var(--rule)}
+nav a:hover{color:var(--red);border-left-color:var(--red)}
+nav a.part{color:var(--ink);font-weight:700;margin-top:12px;border-left-color:var(--line)}
+
+/* 머리 */
+header{margin-bottom:46px;padding-bottom:30px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-size:12px;letter-spacing:.2em;color:var(--red);font-weight:700;margin-bottom:12px}
+h1{font-size:40px;line-height:1.2;letter-spacing:-.03em;font-weight:800;margin-bottom:12px}
+.dek{font-size:17px;color:var(--ink2);max-width:52ch}
+.meta{margin-top:20px;font-size:13.5px;color:var(--muted)}
+
+h2{font-size:26px;letter-spacing:-.02em;font-weight:800;margin:56px 0 6px;
+  padding-top:22px;border-top:1px solid var(--line)}
+h2 .n{color:var(--red);margin-right:10px}
+h2+.lead{font-size:15px;color:var(--muted);margin-bottom:22px}
+h3{font-size:19px;font-weight:700;margin:30px 0 10px}
+h4{font-size:15.5px;font-weight:700;margin:20px 0 6px}
+p{margin-bottom:13px;max-width:62ch}
+b,strong{font-weight:700}
+.hl{background:linear-gradient(transparent 60%, var(--yellow) 60%)}
+a{color:var(--blue)}
+
+ul,ol{margin:0 0 15px 20px;max-width:62ch}
+li{margin-bottom:7px}
+
+table{border-collapse:collapse;width:100%;font-size:14.5px;margin:14px 0 20px}
+th,td{border-bottom:1px solid var(--rule);padding:9px 11px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:13px;border-bottom:1.5px solid var(--line);
+  letter-spacing:.02em}
+td.c{text-align:center}
+tr.me td{background:#fff7e6}
+tr.me td:first-child{box-shadow:inset 3px 0 0 var(--red)}
+
+figure{margin:22px 0 26px;background:var(--card);border:1px solid var(--rule);
+  border-radius:10px;padding:14px;max-width:none}
+figure img{width:100%;height:auto;display:block;border-radius:5px}
+figcaption{font-size:13.5px;color:var(--ink2);line-height:1.62;margin-top:12px;
+  padding-top:11px;border-top:1px solid var(--rule)}
+figcaption b{color:var(--ink)}
+.fignum{display:inline-block;background:var(--ink);color:#fff;font-size:11px;
+  font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:3px;margin-right:8px}
+
+.chain{counter-reset:ch;list-style:none;margin:18px 0;padding:0}
+.chain li{counter-increment:ch;position:relative;padding:12px 0 12px 48px;border-top:1px solid var(--rule);font-size:15px}
+.chain li:last-child{border-bottom:1px solid var(--rule)}
+.chain li::before{content:counter(ch);position:absolute;left:0;top:12px;width:27px;height:27px;
+  border-radius:50%;background:var(--ink);color:#fff;font-size:13px;font-weight:700;
+  display:flex;align-items:center;justify-content:center}
+.chain li.fin{background:#fff7e6}
+.chain li.fin::before{background:var(--red)}
+.chain .t{display:block;font-size:12px;letter-spacing:.1em;color:var(--muted);font-weight:700;margin-bottom:2px}
+
+.box{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--line);
+  border-radius:0 8px 8px 0;padding:18px 22px;margin:20px 0}
+.box.red{border-left-color:var(--red)}
+.box.gold{border-left-color:var(--gold);background:#fffdf4}
+.box h4{margin-top:0}
+.box p:last-child{margin-bottom:0}
+
+.quote{border-left:4px solid var(--line);padding:4px 0 4px 20px;margin:18px 0;
+  color:var(--ink2);font-size:15.5px;max-width:58ch}
+.quote cite{display:block;margin-top:9px;font-size:13px;color:var(--muted);font-style:normal}
+
+.nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:20px 0}
+.nums div{background:var(--card);border:1px solid var(--rule);border-radius:9px;padding:16px 18px}
+.nums .v{font-size:34px;font-weight:800;letter-spacing:-.03em;color:var(--red);line-height:1.1}
+.nums .v.blue{color:var(--blue)}
+.nums .k{font-size:13px;color:var(--ink2);margin-top:5px;line-height:1.5}
+
+.say{background:#f3efe4;border-radius:9px;padding:16px 20px;margin:18px 0;
+  font-size:15.5px;color:var(--ink);max-width:60ch}
+.say .t{font-size:11px;letter-spacing:.16em;color:var(--gold);font-weight:700;margin-bottom:7px}
+
+.links{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 42px}
+.links .lk{display:block;text-decoration:none;background:var(--card);border:1px solid var(--rule);
+  border-left:4px solid var(--red);border-radius:0 10px 10px 0;padding:16px 20px;
+  transition:border-color .15s,transform .1s}
+.links .lk:hover{border-color:var(--red);transform:translateY(-1px)}
+.links .lk .t{display:block;font-size:17px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
+.links .lk .d{display:block;font-size:13.5px;color:var(--ink2);margin-top:4px;line-height:1.55}
+.links .lk .u{display:block;font-size:11.5px;color:var(--muted);margin-top:7px;word-break:break-all}
+.linkhead{font-size:12px;letter-spacing:.16em;color:var(--muted);font-weight:700;margin-bottom:10px}
+@media (max-width:700px){.links{grid-template-columns:1fr}}
+@media print{.links .lk{border-left-color:var(--line)}}
+
+footer{margin-top:60px;padding-top:24px;border-top:1px solid var(--line);
+  font-size:13.5px;color:var(--ink2)}
+
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr;gap:0;padding:34px 18px 80px}
+  nav{position:static;margin-bottom:34px;columns:2;font-size:13px}
+  h1{font-size:30px}
+}
+@media print{
+  body{background:#fff}
+  nav{display:none}
+  .wrap{grid-template-columns:1fr;max-width:none;padding:0}
+  figure,.box,table{page-break-inside:avoid}
+  h2{page-break-after:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav>
+  <div class="nt">차례</div>
+  <a href="#p1" class="part">Ⅰ. 누가 그렸나</a>
+  <a href="#s1">그린 사람은 존 스노</a>
+  <a href="#s2">터프티의 다섯 권</a>
+  <a href="#p3" class="part">Ⅱ. 1854년 런던</a>
+  <a href="#s5">무슨 일이 있었나</a>
+  <a href="#p4" class="part">Ⅲ. 지도 읽기</a>
+  <a href="#s6">전체</a>
+  <a href="#s7">기호 두 가지</a>
+  <a href="#s8">막대 읽는 법</a>
+  <a href="#s9">중심부</a>
+  <a href="#s10">펌프 자리</a>
+  <a href="#s11">구빈원</a>
+  <a href="#s12">양조장</a>
+  <a href="#s13">한산한 곳들</a>
+  <a href="#p5" class="part">Ⅳ. 그래서 범인은?</a>
+  <a href="#s14">숫자로 보는 증거</a>
+  <a href="#s15">멀리 살았는데 죽은 사람들</a>
+  <a href="#s15b">네 줄로 이으면</a>
+  <a href="#s16">그래서 어떻게 됐나</a>
+  <a href="#p6" class="part">Ⅴ. 정리</a>
+  <a href="#s17">좋은 시각화인 이유</a>
+  <a href="#s18">참고자료</a>
+</nav>
+
+<main>
+<header>
+  <p class="eyebrow">데이터 시각화 · 작품 분석 · 내용 정리</p>
+  <h1>점 하나가 사람 한 명</h1>
+  <p class="dek">존 스노의 콜레라 점 지도(1854)를 터프티의 『시각적 설명』을 따라 읽는다.
+    발표자료를 만들기 전 단계의 내용 정리 문서다.</p>
+</header>
+
+<p class="linkhead">같이 보는 자료 — 눌러서 바로 열립니다</p>
+<div class="links">
+  <a class="lk" href="https://gypog5122-cell.github.io/cholera-detective/map/" target="_blank" rel="noopener">
+    <span class="t">① 지도 읽기 — 해설판</span>
+    <span class="d">10단계 해설을 따라가며 지도를 확대·축소한다.
+      막대와 펌프에 마우스를 올리면 값이 나오고, 아래쪽에서 같은 데이터를 막대그래프로 다시 센다.</span>
+    <span class="u">gypog5122-cell.github.io/cholera-detective/map/</span>
+  </a>
+  <a class="lk" href="https://gypog5122-cell.github.io/cholera-detective/" target="_blank" rel="noopener">
+    <span class="t">② 콜레라 탐정 — 게임</span>
+    <span class="d">직접 범인 펌프를 지목하고, 빈칸 두 곳과 반례를 조사하는 8단계 추리 게임.
+      이 문서의 내용을 그대로 따라간다.</span>
+    <span class="u">gypog5122-cell.github.io/cholera-detective/</span>
+  </a>
+</div>
+
+<!-- ══════ Ⅰ ══════ -->
+<h2 id="p1"><span class="n">Ⅰ</span>이 지도는 누가 그렸나</h2>
+<p class="lead">터프티의 책에 실려 있지만, 터프티가 그린 지도가 아니다</p>
+
+<h3 id="s1">그린 사람은 존 스노</h3>
+<div class="box red">
+  <h4>가장 헷갈리기 쉬운 점 — 터프티는 그린 사람이 아니다</h4>
+  <p><b>에드워드 터프티</b>(Edward Tufte, 1942~ )는 미국 예일대 교수다. 그가 한 일은
+    <b>잘 만든 그림과 못 만든 그림을 모아 놓고 "이건 왜 좋은가"를 설명하는 책</b>을 다섯 권 쓴 것이다.
+    그러니까 그는 <b>남이 그린 그림을 모아서 평가하는 사람</b>이다.</p>
+  <p>우리가 발표할 콜레라 지도를 그린 사람은 <b>존 스노</b>(John Snow)다.
+    터프티가 직접 손댄 것은 딱 하나 — <b>구빈원과 양조장 두 곳에 노란색을 칠해</b> 눈에 띄게 한 것뿐이다.</p>
+  <p style="margin-top:10px"><b>그래서 발표에서 말할 때는</b> "터프티의 지도"가 아니라
+    <b>"존 스노가 1854년에 그린 콜레라 지도 — 터프티의 책 『시각적 설명』 31쪽에 실려 있다"</b>고 말한다.</p>
+</div>
+
+<h4>그럼 존 스노는 누구인가</h4>
+<table>
+  <tbody>
+    <tr><td style="width:120px">언제 사람인가</td>
+      <td><b>1813~1858년, 그때 런던에 살던 의사다.</b> 나중에 역사책을 들춰 보고 정리한 사람이 아니라,
+        <b>콜레라가 터진 그 동네에 직접 있던 사람</b>이다.</td></tr>
+    <tr><td>무슨 일을 했나</td>
+      <td>의사였다. 특히 수술할 때 환자를 잠들게 하는 <b>마취</b>(수술 중 아픔을 못 느끼게 하는 것)를 잘하기로 유명해서,
+        <b>빅토리아 여왕</b>이 아이를 낳을 때도 불려 갔다.</td></tr>
+    <tr><td>왜 그렸나</td>
+      <td><b>사람을 살리려고</b> 그렸다. 콜레라가 터진 바로 그때, 원인을 찾으려고 집집마다 찾아다니며
+        "누가 언제 죽었나, 어느 펌프 물을 마셨나"를 직접 묻고 그 자리를 지도에 하나씩 찍었다.</td></tr>
+    <tr><td>언제 그렸나</td>
+      <td>1854년 <b>8~9월 유행이 한창일 때 조사</b>하고, <b>1855년에 낸 자기 책</b>에 이 지도를 실었다.</td></tr>
+  </tbody>
+</table>
+<p>정리하면 — <b>이 지도는 보고서용 그림이 아니라, 범인을 잡으려고 만든 증거물이다.</b>
+  그 점이 이 지도를 특별하게 만든다.</p>
+
+<h3 id="s2">터프티의 다섯 권 — 한 줄씩</h3>
+<p>터프티는 40년에 걸쳐 다섯 권을 냈다. 권마다 묻는 질문이 다르다.
+  <b>우리가 볼 지도는 3권 『시각적 설명』 2장, 31쪽에 있다.</b></p>
+<table>
+  <thead><tr><th style="width:38px">권</th><th style="width:230px">책</th><th>묻는 질문</th></tr></thead>
+  <tbody>
+    <tr><td class="c">1</td><td><b>정량적 정보의 시각적 표현</b><br><span style="color:var(--muted)">1983</span></td>
+      <td>숫자를 <b>어떻게 그릴</b> 것인가</td></tr>
+    <tr><td class="c">2</td><td><b>정보의 시각화</b><br><span style="color:var(--muted)">1990</span></td>
+      <td>납작한 종이 한 장에 <b>여러 가지를 한꺼번에</b> 어떻게 담을 것인가</td></tr>
+    <tr class="me"><td class="c"><b>3</b></td><td><b>시각적 설명</b><br><span style="color:var(--muted)">1997 — 우리가 쓰는 책</span></td>
+      <td><b>왜 그렇게 됐는지(원인)를 어떻게 보여줄</b> 것인가 &nbsp;→&nbsp; <b>콜레라 지도</b></td></tr>
+    <tr><td class="c">4</td><td><b>아름다운 증거</b><br><span style="color:var(--muted)">2006</span></td>
+      <td>무엇이 그림을 <b>증거로</b> 만드는가</td></tr>
+    <tr><td class="c">5</td><td><b>새로운 눈으로 보기</b><br><span style="color:var(--muted)">2020</span></td>
+      <td>익숙해진 그림 방식을 <b>어떻게 다시 설계</b>할 것인가</td></tr>
+  </tbody>
+</table>
+
+<!-- ══════ Ⅱ ══════ -->
+<h2 id="p3"><span class="n">Ⅱ</span>1854년 런던에서 무슨 일이 있었나</h2>
+<p class="lead">지도를 보기 전에 알아야 할 배경</p>
+
+<h3 id="s5">열흘 만에 500명</h3>
+<p>1854년 8월 31일 밤, 런던 한복판 <b>소호</b>(Soho — 런던 시내 한가운데에 있는 동네.
+  당시에는 좁은 골목에 집이 다닥다닥 붙어 있고 가난한 노동자가 빽빽하게 살던 곳이었다.
+  지금은 극장과 식당이 많은 번화가다)에서 <b>콜레라</b>(물이나 음식으로 옮는 병.
+  심한 설사로 몸의 물이 빠져나가 하루 만에도 죽을 수 있다)가 터졌다.</p>
+<p>설사를 시작한 사람이 <b>하루 만에</b> 죽어 나갔다. 열흘 사이 <b>500명 넘게</b> 죽었고,
+  주민들은 집을 버리고 달아났다.</p>
+
+<div class="box">
+  <h4>"독기설"이 뭔가 — 나쁜 공기 때문이라는 생각</h4>
+  <p>그때 의사들이 모두 믿던 설명은 <b>독기설</b>(毒氣說, 영어로 miasma theory)이었다.
+    말은 어렵지만 뜻은 아주 간단하다 — <b>"더러운 데서 나는 고약한 냄새를 맡으면 병에 걸린다"</b>는 생각이다.</p>
+  <p>그럴듯하게 들릴 만했다. 당시 런던은 하수도가 제대로 없어서 똥오줌과 쓰레기 냄새가 골목마다 가득했고,
+    실제로 <b>냄새나는 가난한 동네에서 사람이 더 많이 죽었기</b> 때문이다.
+    눈에 안 보이는 <b>세균</b>이 병을 일으킨다는 사실은 아직 아무도 몰랐다(그건 20~30년쯤 뒤에 밝혀진다).</p>
+  <p>스노의 생각은 달랐다. <b>"냄새가 아니라 마시는 물이 문제다"</b>라고 봤다.
+    하지만 믿어 주는 사람이 거의 없었고, 진짜 문제는 <b>그걸 어떻게 증명하느냐</b>였다.</p>
+</div>
+
+<div class="box">
+  <h4>스노가 쓴 방법 — 세는 대신 찍었다</h4>
+  <p>보통 사람이라면 <b>"며칠에 몇 명 죽었다"</b>를 표나 꺾은선 그래프로 그렸을 것이다.
+    그러면 나쁜 소식을 <b>세는</b> 것으로 끝난다. 왜 죽었는지는 알 수 없다.</p>
+  <p>스노는 대신 <b>"어디서 죽었나"를 지도에 하나씩 찍었다.</b>
+    그러자 <b>원인(펌프)과 결과(죽음)가 같은 그림 안에</b> 들어왔다.
+    터프티는 이것을 <b>"시간을 공간으로 바꿨다"</b>고 표현한다 —
+    날짜 순서로 늘어놓던 것을 <b>지도 위 위치로 바꿔 놓았다</b>는 뜻이다.</p>
+</div>
+
+<div class="box red">
+  <h4>이 발표의 줄거리 — 다섯 걸음</h4>
+  <p>지도 하나로 범인을 잡는 이야기다. 중간에 <b>"어? 이건 말이 안 맞는데?"</b> 싶은 대목이 한 번 나오는데,
+    바로 거기가 이 이야기의 핵심이다.</p>
+  <ol class="chain">
+    <li><span class="t">1단계 · 찍는다</span>죽은 사람이 살던 집에 <b>막대를 하나씩</b> 찍는다.</li>
+    <li><span class="t">2단계 · 몰린다</span>막대가 <b>펌프 한 곳 둘레에</b> 몰려 있다. → "이 펌프가 범인인가?"</li>
+    <li><span class="t">3단계 · 어긋난다</span>그런데 <b>그 펌프 코앞인데 멀쩡한 곳이 두 군데</b> 있다.
+      그리고 <b>멀리 사는데 죽은 사람</b>도 있다. → "말이 안 맞잖아?"</li>
+    <li><span class="t">4단계 · 기준을 바꾼다</span>멀쩡한 두 곳은 <b>그 물을 안 마셨고</b>, 멀리서 죽은 사람은
+      <b>그 물을 마셨다</b>. → 기준은 <b>거리가 아니라 "그 물을 마셨느냐"</b>였다.</li>
+    <li class="fin"><span class="t">5단계 · 결론</span>어긋나 보이던 것이 모두 <b>한 우물을 가리킨다.</b>
+      콜레라는 공기가 아니라 <b>물로 옮는다.</b></li>
+  </ol>
+  <p>3단계의 어긋남이 없었다면 이 지도는 그냥 "여기가 심했다"는 그림으로 끝났을 것이다.
+    <b>어긋남을 설명해 낸 덕분에</b> 증거가 됐다.</p>
+</div>
+
+<!-- ══════ Ⅲ ══════ -->
+<h2 id="p4"><span class="n">Ⅲ</span>지도 읽기 — 확대해서 보기</h2>
+<p class="lead">전체를 보고, 부분을 하나씩 확대해 들어간다</p>
+
+<h3 id="s6">1. 전체</h3>
+<figure>
+  <img src="img/01-map-full.png" alt="존 스노의 콜레라 점 지도 전체">
+  <figcaption><span class="fignum">그림 1</span><b>전체 지도.</b> 1854년 9월 런던 소호.
+    가로세로 <b>640m</b> 남짓한 좁은 동네다(걸어서 10분이면 가로지른다).
+    위쪽이 <b>옥스퍼드 스트리트</b>(OXFORD STREET), 오른쪽 위가 <b>소호 광장</b>(SOHO SQUARE),
+    아래쪽이 <b>리젠츠 쿼드런트와 피카딜리</b>. 한가운데를 비스듬히 가로지르는 길이
+    <b>브로드 스트리트</b>(BROAD STREET)다.
+    노란 두 칸은 터프티가 칠한 <b>구빈원</b>(WORK HOUSE)과 <b>양조장</b>(BREWERY)이다.</figcaption>
+</figure>
+<p>처음 볼 때 할 일은 딱 하나다. <b>검은 것이 어디에 몰려 있는지만 보면 된다.</b>
+  지도 한가운데가 눈에 띄게 검고, 가장자리로 갈수록 하얗다.</p>
+
+<h3 id="s7">2. 쓰인 기호는 두 가지뿐</h3>
+<figure>
+  <img src="img/02-pump-label.png" alt="공동 물펌프 표식">
+  <figcaption><span class="fignum">그림 2</span><b>물펌프 표식.</b> 까만 동그라미(●) 하나가 펌프 한 곳이고, 옆에 <b>PUMP</b>라고 적혀 있다. 이런 이름표가 붙은 곳이 <b>8군데</b>다. 여기는 웰스 스트리트 근처 펌프다.</figcaption>
+</figure>
+<p>이 지도가 쓰는 기호는 두 가지가 전부다.</p>
+<ul>
+  <li><b>검은 막대</b> — 콜레라로 <b>죽은 사람</b>. 죽은 사람이 살던 집 앞에 막대를 하나씩 그렸다.</li>
+  <li><b>● 펌프</b> — 동네 <b>공동 물펌프</b>(수도가 집집마다 없던 시절, 동네 사람들이 양동이를 들고 와서
+    물을 받아 가던 곳). 영어 원본에는 옆에 <b>PUMP</b>라고 적혀 있다.</li>
+</ul>
+<p>그 밖에는 거리 이름과 건물 테두리뿐이다. <b>꾸밈이 하나도 없다.</b>
+  터프티가 말하는 "보는 사람의 눈을 데이터에만 모으는 디자인"이 이런 것이다.</p>
+
+<h3 id="s8">3. 막대 읽는 법</h3>
+<figure>
+  <img src="img/03-bars.png" alt="사망자를 나타내는 검은 막대가 쌓인 모습">
+  <figcaption><span class="fignum">그림 3</span><b>막대가 쌓이는 방식.</b> 짧은 막대 하나가 <b>죽은 사람 한 명</b>이다. 같은 집에서 여러 명이 죽으면 <b>길 쪽으로 가지런히 쌓아 올린다.</b> 오른쪽 위를 보면 막대가 빗살처럼 겹겹이 쌓여 있는데, 한 건물에서 여러 명이 죽었다는 뜻이다.</figcaption>
+</figure>
+<p>이 방식 덕분에 <b>막대 더미가 두꺼울수록 그 집에서 많이 죽었다</b>는 뜻이 된다.
+  숫자를 하나도 쓰지 않고 양을 보여주는 장치다.</p>
+
+<h3 id="s9">4. 중심부 — 가장 검은 곳</h3>
+<figure>
+  <img src="img/04-centre.png" alt="브로드 스트리트 주변의 밀집된 사망자 표시">
+  <figcaption><span class="fignum">그림 4</span><b>브로드 스트리트 일대.</b> 지도에서 가장 검은 구역이다. <b>BROAD STREET</b> 글자를 따라 양쪽으로 막대가 빽빽하다. 왼쪽 위 노란 칸이 <b>구빈원</b>(WORK HOUSE), 오른쪽 노란 칸이 <b>양조장</b>(BREWERY)이다. 검은 바다 한가운데에서 <b>두 노란 칸만 비어 있다.</b></figcaption>
+</figure>
+
+<h3 id="s10">5. 문제의 펌프 자리</h3>
+<figure>
+  <img src="img/05-pump-site.png" alt="브로드 스트리트 펌프 자리">
+  <figcaption><span class="fignum">그림 5</span><b>문제의 펌프 자리.</b> 터프티는 위치를 글로 짚어 준다 — <b>"펌프는 지도 한가운데, BROAD STREET이라고 쓴 글자의 D 바로 오른쪽에 있다."</b> 바로 그 자리에서 막대가 아래로 가장 길게 쏟아진다.</figcaption>
+</figure>
+<div class="box gold">
+  <h4>재미있는 점 — 정작 범인에게는 이름표가 없다</h4>
+  <p>다른 펌프 옆에는 <b>PUMP</b>라는 글자가 또박또박 적혀 있다(그림 2를 보라).
+    그런데 <b>브로드 스트리트 펌프 옆에는 그 글자가 없다.</b>
+    검은 막대가 가장 빽빽한 바로 그 자리에, <b>점 하나로 조용히 찍혀 있을 뿐</b>이다.</p>
+  <p>그래서 터프티는 책에서 위치를 <b>글로 짚어 준다</b> —
+    "펌프는 지도 한가운데, BROAD STREET이라고 쓴 글자의 D 바로 오른쪽에 있다."
+    <b>그림만 봐서는 못 찾기 때문</b>이다.</p>
+  <p>이름표가 붙은 펌프들은 결국 <b>죄가 없었고</b>, 이름표 없는 한 곳이 범인이었다.
+    발표에서 짚어 주면 좋은 대목이다.</p>
+  <h4 style="margin-top:16px">그럼 스노가 일부러 뺀 걸까? — 아니다</h4>
+  <p>오히려 반대다. <b>스노는 이 펌프를 고발하려고 이 지도를 그렸다.</b>
+    9월 7일에는 직접 위원회를 찾아가 "저 펌프 손잡이를 떼라"고 요구까지 했다. 숨길 이유가 없다.</p>
+  <p>빠진 것은 <b>"PUMP"라는 글자 하나뿐</b>이다. 정작 중요한 것은 다 들어가 있다 —</p>
+  <table>
+    <tbody>
+      <tr><td style="width:150px">사망자 막대</td><td><b>다 그려져 있다.</b> 지도에서 가장 새까만 곳이 바로 거기다</td></tr>
+      <tr><td>펌프 자리</td><td><b>점(●)은 찍혀 있다</b></td></tr>
+      <tr class="me"><td><b>PUMP라는 글자</b></td><td><b>이것만 없다</b></td></tr>
+    </tbody>
+  </table>
+  <p><b>가장 그럴듯한 이유는 자리가 없어서다.</b> 다른 펌프들(그림 2)은 <b>텅 빈 하얀 공간</b> 한가운데
+    있어서 글자를 쓸 자리가 넉넉하다. 그런데 브로드 스트리트 펌프 둘레는
+    <b>막대가 빗살처럼 빽빽하게 쌓인 자리</b>다. 거기에 PUMP라고 쓰면 <b>사망자 표시를 덮어 버린다.</b></p>
+  <p style="color:var(--muted);font-size:13.5px">※ 다만 이건 <b>추측</b>이다. 스노가 왜 그랬는지 적어 둔 기록은 없다.
+    발표에서는 <b>"아마 자리가 없어서였을 것"</b> 정도로 말하는 편이 안전하다.</p>
+  <div class="box" style="margin:16px 0 0;background:#f7f4ec">
+    <h4>숫자 주의 — "8곳"은 펌프 개수가 아니다</h4>
+    <p><b>8은 그림에 PUMP라고 글씨가 적힌 자리의 수</b>이지, 그 동네에 펌프가 8개뿐이었다는 뜻이 아니다.
+      실제로는 더 많았다. <b>스노 본인이 책에 13곳이라고 썼다.</b></p>
+    <table>
+      <tbody>
+        <tr><td style="width:230px">실제로 있던 펌프</td><td><b>13곳</b> — 스노가 책에 쓴 숫자</td></tr>
+        <tr><td>우리 그림에 <b>PUMP라고 적힌</b> 자리</td><td><b>8곳</b></td></tr>
+        <tr class="me"><td>브로드 스트리트 펌프</td><td><b>글씨 없음</b> — 점 하나뿐 (범인)</td></tr>
+      </tbody>
+    </table>
+    <p>숫자가 안 맞는 이유는 <b>같은 지도가 여러 번 다시 인쇄되고 다시 그려졌기</b> 때문이다.
+      터프티 <b>1권 24쪽</b>에 실린 것은 1958년에 한 지리학자가 다시 그린 판이라 펌프를 <b>× 표</b>로 찍었고 11곳이 나온다.
+      우리가 쓰는 <b>3권 31쪽</b> 판은 <b>● 옆에 PUMP라고 글씨</b>를 적었다. 판마다 표시 방법도, 세어지는 개수도 다르다.</p>
+    <p style="margin-top:10px"><b>발표에서는 이렇게 말한다</b> —
+      "이 지도에 <b>PUMP라고 적힌 곳은 8군데</b>인데, 정작 범인 펌프에는 그 글씨가 없습니다."<br>
+      <span style="color:var(--muted)">"펌프가 8개였다"고 말하면 틀린 말이 된다.</span></p>
+  </div>
+</div>
+
+<h3 id="s11">6. 구빈원 — 535명 중 5명</h3>
+<figure>
+  <img src="img/06-workhouse.png" alt="노랗게 칠해진 구빈원">
+  <figcaption><span class="fignum">그림 6</span><b>폴런드 스트리트 구빈원</b>(WORK HOUSE)<b>.</b> 노란 칸 안에 <b>검은 막대가 딱 하나</b> 있다. 바로 바깥 거리에는 막대가 줄줄이 붙어 있는데도 그렇다.</figcaption>
+</figure>
+<p><b>구빈원</b>(救貧院)은 갈 곳 없는 가난한 사람을 나라에서 모아 재워 주고 먹여 주던 시설이다.
+  좁은 건물에 수백 명이 함께 지냈으니, 병이 돌면 가장 위험한 곳이어야 한다.</p>
+<div class="quote">
+  "폴런드 스트리트의 구빈원은 <b>사방이 콜레라 사망자가 나온 집들</b>로 둘러싸여 있다.
+  그러나 그 안에서 지내던 <b>535명 중 콜레라로 죽은 사람은 단 5명</b>이었다. …
+  구빈원에는 <b>마당 안에 자기네 우물과 펌프</b>가 있다. 그래서 그 안 사람들은
+  브로드 스트리트까지 물을 길으러 갈 일이 없었다. 만약 구빈원이 바로 붙어 있는 세 방향 거리들과
+  같은 비율로 죽었다면 <b>100명 넘게 죽었을 것이다.</b>"
+  <cite>존 스노, 『콜레라의 전파 방식에 관하여』 42쪽</cite>
+</div>
+
+<h3 id="s12">7. 양조장 — 70명 중 0명</h3>
+<figure>
+  <img src="img/07-brewery.png" alt="노랗게 칠해진 양조장">
+  <figcaption><span class="fignum">그림 7</span><b>브로드 스트리트 양조장</b>(BREWERY)<b>.</b> 노란 칸 안이 <b>완전히 비어 있다.</b> 가장 위험한 자리에 있으면서 막대가 하나도 없다.</figcaption>
+</figure>
+<p><b>양조장</b>(釀造場)은 술 만드는 공장이다. 펌프에서 걸어서 1분 거리, 가장 위험한 자리에 있다.</p>
+<div class="quote">
+  "양조장에 <b>70명이 넘는 일꾼</b>이 있었는데, 유행이 도는 동안 <b>심하게 앓은 사람이 한 명도 없었다.</b>
+  … 일꾼들은 날마다 일정량의 <b>맥아주</b>(보리를 싹 틔워 만든 술. 맥주 비슷한 것)를 받아 마실 수 있었다.
+  주인 허긴스 씨는 그들이 <b>물은 아예 안 마신다</b>고 했고, 거리 펌프에서 물을 길어 오는 일은
+  결코 없었다고 확신했다. 게다가 양조장 안에는 <b>깊은 우물</b>이 따로 있었다."
+  <cite>존 스노, 같은 책 42쪽</cite>
+</div>
+<p><b>맥주를 마셔서 살아남았다.</b> 발표에서 가장 반응이 좋을 대목이다.</p>
+
+<div class="box red">
+  <h4>잠깐 — 이거 오히려 반대 증거 아닌가?</h4>
+  <p>여기서 한 번 걸린다. 방금 <b>"이 펌프가 범인"</b>이라고 해 놓고,
+    정작 <b>그 펌프에서 가장 가까운 두 건물이 멀쩡하다.</b>
+    펌프 코앞에 605명이 있었는데 죽은 사람은 5명뿐이다. 말이 안 맞아 보인다.</p>
+  <p>그런데 두 곳의 <b>공통점</b>을 보자.</p>
+  <table>
+    <thead><tr><th style="width:110px"></th><th>펌프까지</th><th>무엇을 마셨나</th><th>결과</th></tr></thead>
+    <tbody>
+      <tr><td>구빈원</td><td>걸어서 1분</td><td><b>구내 자기 우물</b></td><td>535명 중 5명</td></tr>
+      <tr><td>양조장</td><td>걸어서 1분</td><td><b>맥아주 + 깊은 자체 우물</b></td><td>70명 중 0명</td></tr>
+      <tr class="me"><td>주변 집들</td><td>걸어서 1~2분</td><td><b>브로드 스트리트 펌프 물</b></td><td>집집마다 사망</td></tr>
+    </tbody>
+  </table>
+  <p>셋 다 <b>펌프까지 거리는 똑같다.</b> 다른 건 <b>마신 물</b> 하나뿐이다.</p>
+  <p style="margin-top:10px"><b>그래서 기준이 바뀐다.</b> "펌프에서 가까우면 죽는다"가 아니라
+    <b>"그 펌프 물을 마시면 죽는다"</b>였던 것이다.
+    기준을 이렇게 바꾸는 순간, <b>안 죽은 사람들이 가장 강한 증거</b>가 된다 —
+    같은 자리에 있었는데 <b>그 물만 안 마셨더니 살았으니까.</b></p>
+</div>
+
+<h3 id="s13">8. 한산한 곳들 — 비교 대상</h3>
+<figure>
+  <img src="img/08-golden-sq.png" alt="골든 광장 일대">
+  <figcaption><span class="fignum">그림 8</span><b>골든 광장</b>(GOLDEN SQUARE) <b>남쪽.</b> 여기에도 <b>PUMP가 두 곳</b> 있는데 주변에 막대가 드문드문하다. 브로드 스트리트에서 겨우 몇 블록 떨어졌을 뿐이다.</figcaption>
+</figure>
+<figure>
+  <img src="img/09-soho-sq.png" alt="소호 광장 일대">
+  <figcaption><span class="fignum">그림 9</span><b>소호 광장</b>(SOHO SQUARE) <b>쪽(동쪽).</b> 같은 동네인데 거의 하얗다. <b>PUMP</b>가 있어도 막대가 따라붙지 않는다.</figcaption>
+</figure>
+<figure>
+  <img src="img/10-north.png" alt="옥스퍼드 스트리트 북서쪽">
+  <figcaption><span class="fignum">그림 10</span><b>옥스퍼드 스트리트 북서쪽.</b> 리젠트 스트리트 건너편은 거의 백지에 가깝다. <b>검은 것이 몰린 곳과 그렇지 않은 곳의 경계</b>가 눈으로 보인다.</figcaption>
+</figure>
+<p>이 세 장이 중요한 이유는 <b>비교 대상</b>이기 때문이다.
+  검은 곳만 보면 "콜레라가 심했구나"로 끝난다.
+  <b>하얀 곳과 나란히 놓고 봐야 "왜 여기만 이렇지?"라는 질문</b>이 생긴다.</p>
+
+<!-- ══════ Ⅴ ══════ -->
+<h2 id="p5"><span class="n">Ⅳ</span>그래서 범인은?</h2>
+<p class="lead">어긋나 보이던 조각들을 하나로 잇는다</p>
+
+<h3 id="s14">숫자로 보는 증거</h3>
+<div class="nums">
+  <div><div class="v blue">70<span style="font-size:18px">명+</span></div><div class="k">양조장 일꾼</div></div>
+  <div><div class="v">0<span style="font-size:18px">명</span></div><div class="k">양조장에서<br>심하게 앓은 사람</div></div>
+  <div><div class="v blue">535<span style="font-size:18px">명</span></div><div class="k">구빈원에서<br>지내던 사람</div></div>
+  <div><div class="v">5<span style="font-size:18px">명</span></div><div class="k">구빈원에서 죽은 사람<br>(보통이면 100명 넘었을 것)</div></div>
+</div>
+<div class="say">
+  <div class="t">터프티의 핵심 질문</div>
+  <b>"무엇과 비교하는가?(Compared with what?)"</b><br>
+  죽은 사람만 조사하면 답이 안 나온다. <b>안 죽은 사람</b>을 같이 봐야 한다.
+  지도는 산 사람과 죽은 사람을 <b>한 화면에서 비교</b>할 수 있게 해 주었다.
+</div>
+
+<h3 id="s15">멀리 살았는데 죽은 사람들</h3>
+<p>앞에서는 <b>가까운데 안 죽은 사람</b>을 봤다. 이번엔 반대다 — <b>그 펌프와 아무 상관없어 보이는 먼 곳의 죽음</b>이다. 자기 주장에 불리한 사례였지만, 스노는 숨기지 않고 하나씩 직접 찾아가 물었다. <b>"이 사람은 무슨 물을 마셨나?"</b></p>
+<ul>
+  <li>노엘 스트리트의 <b>가구 만드는 사람</b> — 집은 멀지만 <b>낮에는 브로드 스트리트에서 일했다</b></li>
+  <li>멀리 떨어진 골목에서 죽은 <b>아이 둘</b> — <b>브로드 스트리트에 있는 학교에 다니면서</b> 그 펌프 물을 마셨다</li>
+</ul>
+<div class="box red">
+  <h4>가장 결정적인 사례 — 물을 배달시켜 마신 부인</h4>
+  <p>웨스트엔드에 살던 <b>59세 부인</b>은 여러 달 동안 브로드 스트리트 근처에 간 적이 없었다.
+    그런데 그 펌프 물맛을 좋아해 <b>매일 다니는 수레 편에 큰 병으로 배달시켜</b> 마셨다.</p>
+  <p><b>8월 31일 목요일</b> 물을 길어 보냈고, 그날 저녁과 금요일에 마셨다.
+    <b>금요일 저녁에 앓기 시작해 토요일에 죽었다.</b> 방문 중이던 <b>조카딸</b>도 그 물을 마셨고,
+    자기 집으로 돌아가 그곳에서 죽었다. <b>두 동네 모두 그때 콜레라가 전혀 없던 곳</b>이었다.</p>
+  <p>언뜻 보면 이 죽음은 펌프와 아무 상관없어 보인다. 그런데 조사해 보니 <b>펌프 물만 마시고 죽은 셈</b>이 됐다. 불리해 보이던 사례가 <b>가장 강력한 증거</b>로 뒤집힌 것이다.</p>
+</div>
+<p>터프티는 이 태도를 높이 평가한다 — <b>"목적은 옳은 답을 찾는 것이지, 논쟁에서 이기는 것이 아니다."</b>
+  그리고 스노가 이 사례를 실제로 찾아낸 <b>동료 의사(프레이저 박사)에게 공을 돌린</b> 점도 칭찬한다.</p>
+
+<h3 id="s15b">네 줄로 이으면 — 그래서 범인은?</h3>
+<p>지금까지 나온 조각이 넷이다. 따로 보면 어긋나지만, <b>순서대로 이으면 한 곳을 가리킨다.</b></p>
+<ol class="chain">
+  <li><span class="t">가까운데 죽었다</span>펌프 둘레 집집마다 막대가 쌓였다. 사망자 578명 중 <b>358명(62%)</b>이
+    이 펌프가 가장 가까웠고, <b>89%</b>가 200m 안에 있었다.</li>
+  <li><span class="t">가까운데 안 죽었다</span>구빈원 535명 중 5명, 양조장 70명 중 0명.
+    두 곳 다 <b>그 펌프 물을 안 마셨다.</b></li>
+  <li><span class="t">멀리서 죽었다</span>노엘 스트리트의 목수, 먼 골목의 아이 둘, 지도 밖의 59세 부인.
+    셋 다 <b>어떻게든 그 펌프 물을 마셨다.</b></li>
+  <li class="fin"><span class="t">따라서</span><b>죽고 사는 것을 가른 것은 거리도, 공기도 아니었다.
+    오직 "브로드 스트리트 펌프 물을 마셨느냐"였다.</b></li>
+</ol>
+<table>
+  <thead><tr><th style="width:150px">이 기준으로 보면</th><th>가까운데 안 죽은 두 곳</th><th>멀리서 죽은 사람들</th></tr></thead>
+  <tbody>
+    <tr><td><b>"펌프에 가까우면<br>죽는다"</b></td>
+      <td>설명 안 됨 <b>✕</b></td><td>설명 안 됨 <b>✕</b></td></tr>
+    <tr class="me"><td><b>"그 펌프 물을<br>마시면 죽는다"</b></td>
+      <td>안 마셨으니 산 것 <b>○</b></td><td>마셨으니 죽은 것 <b>○</b></td></tr>
+    <tr><td><b>"나쁜 공기 때문이다"<br>(독기설)</b></td>
+      <td>같은 공기를 마셨는데<br>왜 안 죽었나 <b>✕</b></td>
+      <td>그 동네 공기를 쐰 적도<br>없는데 왜 죽었나 <b>✕</b></td></tr>
+  </tbody>
+</table>
+<p>한 가지 설명만 네 조각을 <b>전부</b> 맞춘다. 이게 스노가 지도로 해낸 일이다.</p>
+<div class="say">
+  <div class="t">발표에서 이렇게 말하면 된다</div>
+  "죽은 사람만 봤으면 '여기가 심했다'로 끝났을 겁니다.
+  <b>안 죽은 사람까지 같이 보니까 비로소 범인이 보였습니다.</b>
+  그게 터프티가 이 지도를 두고 '무엇과 비교하는가'를 묻는 이유입니다."
+</div>
+
+<h3 id="s16">그래서 어떻게 됐나</h3>
+<p>범인을 찾았으니, 이제 <b>어떻게 했고 그래서 세상이 어떻게 바뀌었는지</b>가 남는다. 세 단계로 이어진다.</p>
+
+<h4>① 당장 한 일 — 손잡이를 뗐다</h4>
+<p>1854년 9월 7일 저녁, 스노는 <b>교구위원회</b>(동네 일을 결정하던 주민 대표 모임)를 찾아가
+  지도를 펼쳐 보이고 <b>"저 펌프 손잡이를 떼어 달라"</b>고 했다. 다음 날 손잡이가 떼어졌고, 유행은 끝났다.
+  보통 이야기는 여기서 끝난다 — <b>그런데 사실은 조금 다르다.</b></p>
+<figure>
+  <img src="img/11-timeline.png" alt="유행 기간의 일별 콜레라 사망자 수">
+  <figcaption><span class="fignum">그림 11</span><b>유행 기간의 일별 사망자 수</b>(터프티 『시각적 설명』 33쪽).
+    <b>9월 2일이 가장 높고(127명)</b>, <b>손잡이를 뗀 9월 8일</b>에는 이미 한참 줄어 있었다.</figcaption>
+</figure>
+<p>터프티는 이 그래프를 들어 지적한다 — <b>"스노의 업적에서 가장 유명한 부분이
+  그의 증거 중 가장 불확실한 부분이기도 하다."</b></p>
+<ul>
+  <li>많은 주민이 <b>이미 동네를 떠나 버렸다</b></li>
+  <li>걸릴 사람이 <b>이미 다 걸려서 남아 있지 않았다</b></li>
+  <li>요즘 <b>역학자</b>(병이 어떻게 퍼지는지 연구하는 사람)들도 "손잡이를 떼서 끝났다"는 말에는 <b>고개를 갸웃한다</b></li>
+</ul>
+<p>그러니 <b>손잡이는 이 이야기의 결말이 아니다.</b> 진짜 결말은 그다음에 있다.</p>
+
+<h4>② 바로는 안 믿어 줬다</h4>
+<p>솔직히 말하면 <b>스노는 살아서 인정받지 못했다.</b> 이듬해인 1855년, 정부가 꾸린 조사위원회는
+  스노의 물 이야기를 <b>받아들이지 않고</b> 여전히 "나쁜 공기 탓"이라고 결론 내렸다.
+  눈에 보이지도 않는 것이 물에 들어 있다는 말이, 그때로서는 너무 이상했던 것이다.
+  스노는 <b>1858년에 45세로 죽었다.</b></p>
+
+<h4>③ 그런데 결국 스노가 맞았다</h4>
+<ul>
+  <li><b>1858년 여름</b> — 템스강이 썩어 의회가 문을 닫을 지경이 되자,
+    런던은 마침내 <b>하수도를 새로 깔기</b> 시작했다(1859년 착공). 똥물과 마실 물을 떼어 놓은 것이다.</li>
+  <li><b>1866년</b> — 런던의 마지막 큰 콜레라 유행. 하필 <b>물을 제대로 거르지 않고 공급하던 회사</b>의
+    구역에서만 터졌다. 스노의 말이 다시 한번 맞아떨어졌다.</li>
+  <li><b>1884년</b> — 로베르트 코흐가 <b>콜레라균</b>을 현미경으로 찾아냈다.
+    스노가 "물에 뭔가 있다"고 한 지 <b>30년</b> 만에, 그 "뭔가"의 정체가 밝혀진 것이다.</li>
+</ul>
+<p>오늘날 존 스노는 <b>역학의 아버지</b>로 불린다.
+  "어디서, 누가, 무엇을 했길래 병에 걸렸나"를 자료로 따져 원인을 찾는 방식 —
+  코로나 때 우리가 매일 보던 그 방식이 <b>여기서 시작됐다.</b></p>
+<div class="say">
+  <div class="t">한 줄로</div>
+  스노는 <b>콜레라가 왜 생기는지 몰랐다.</b> 세균도, 현미경 속 모습도 몰랐다.
+  그런데도 <b>지도 한 장으로 "어느 우물을 막아야 하는지"를 정확히 짚었다.</b>
+  원인을 다 몰라도, <b>잘 그린 그림 한 장이면 결정을 내릴 수 있다</b> — 이것이 터프티가 이 사례를 2장 맨 앞에 놓은 이유다.
+</div>
+
+<!-- ══════ Ⅵ ══════ -->
+<h2 id="p6"><span class="n">Ⅴ</span>정리</h2>
+
+<h3 id="s17">이 지도가 좋은 데이터 시각화인 이유 — 세 가지</h3>
+<table>
+  <thead><tr><th style="width:40px"></th><th>원칙</th><th>이 지도에서</th></tr></thead>
+  <tbody>
+    <tr><td class="c"><b>1</b></td><td><b>축을 바꿨다</b></td>
+      <td>"며칠에 몇 명"을 세는 대신 <b>"어디서 죽었나"를 지도에 찍자</b>, 원인(펌프)과 결과(죽음)가 한 그림에 들어왔다</td></tr>
+    <tr><td class="c"><b>2</b></td><td><b>비교를 넣었다</b></td>
+      <td>죽은 사람 옆에 <b>안 죽은 사람</b>(구빈원·양조장·한산한 동네)을 같이 놓았다</td></tr>
+    <tr><td class="c"><b>3</b></td><td><b>불리한 사례를 숨기지 않았다</b></td>
+      <td>자기 주장과 안 맞아 보이는 죽음을 <b>스스로 먼저 찾아내</b> 하나씩 설명했다</td></tr>
+  </tbody>
+</table>
+<div class="say">
+  <div class="t">터프티의 결론</div>
+  "물론 펌프와 병의 관계는 그림 없이 계산만으로도 밝혀낼 수 있었을 것이다. 그러나 적어도 이 경우에는
+  <b>그림으로 보는 쪽이 계산보다 훨씬 빠르고 분명하게 뜻을 드러낸다.</b>"
+</div>
+<p><b>한 문장으로 정리하면:</b> 점 하나가 사람 한 명이었기에, 그 뭉침이 증거가 되었다.</p>
+
+<h3 id="s18">참고자료</h3>
+<ol>
+  <li>Edward Tufte, <i>Visual Explanations: Images and Quantities, Evidence and Narrative</i>,
+    Graphics Press, 1997 — 2장 「시각적·통계적 사고」, 특히 <b>30~35쪽</b>. 지도 도판은 <b>31쪽</b>.</li>
+  <li>Edward Tufte, <i>The Visual Display of Quantitative Information</i>, 2판, Graphics Press, 2001 —
+    <b>24쪽</b>에 같은 지도를 길버트가 다시 그린 판이 실려 있다.</li>
+  <li>John Snow, <i>On the Mode of Communication of Cholera</i>, London, 1855 —
+    양조장·구빈원 이야기가 처음 나오는 곳(42쪽), 반대 사례(44~45, 47쪽).</li>
+  <li>E. W. Gilbert, "Pioneer Maps of Health and Disease in England,"
+    <i>Geographical Journal</i> 124 (1958), 172~183 — 1권에 실린 "다시 그린 지도"의 출처.</li>
+  <li>Benjamin W. Richardson, 「존 스노의 생애」(1858) — 펌프 손잡이 장면의 극적 서술.</li>
+</ol>
+
+<footer>
+  <p><b>같이 보는 자료</b> —
+    <a href="https://gypog5122-cell.github.io/cholera-detective/map/" target="_blank" rel="noopener">지도 읽기(해설판)</a> ·
+    <a href="https://gypog5122-cell.github.io/cholera-detective/" target="_blank" rel="noopener">콜레라 탐정(게임)</a></p>
+  <p style="margin-top:8px"><b>다음 단계</b> — 이 문서를 바탕으로 발표용 슬라이드를 만든다.
+    확대 그림 2~10번이 그대로 슬라이드 한 장씩이 된다.</p>
+</footer>
+</main>
+</div>
+</body>
+</html>
